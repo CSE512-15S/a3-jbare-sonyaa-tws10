@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+    <title>A3</title>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <style>
+    .chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 3px;
+  margin: 1px;
+  color: white;
+}
+    </style>
+  </head>
+  <body>
+  <div class="chart"></div>
+    <script type="text/javascript">
+
+var data = [4, 9, 5, 16, 23, 42];
+
+var x = d3.scale.linear()
+    .domain([0, d3.max(data)])
+    .range([0, 420]);
+
+//d3.select(".chart")
+//  .selectAll("div")
+//    .data(data)
+//  .enter().append("div")
+//    .style("width", function(d) { return x(d) + "px"; })
+//    .text(function(d) { return d; });
+    
+//d3.csv("http://homes.cs.washington.edu/~tws10/scd.csv")
+//    .row(function(d) { return {key: d.key, value: +d.value}; })
+//    .get(function(error, rows) { console.log(rows); });
+
+d3.csv("data/scd_since2000.csv", function(d) {
+  return {
+    decisionDate: d.dateDecision, // convert "Year" column to Date
+    justiceName: d.justiceName,
+    justiceID: +d.justice,
+    vote: +d.direction // convert "Length" column to number
+  };
+}, function(error, rows) {
+  console.log(rows);
+  d3.select(".chart")
+  .selectAll("div")
+    .data(rows)
+  .enter().append("div")
+    .style("width", function(d) { return x(20*d.vote) + "px"; })
+    .text(function(d) { return d.justiceName; });
+});
+
+
+    </script>
+  </body>
+</html>
+
