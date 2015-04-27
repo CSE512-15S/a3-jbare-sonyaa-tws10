@@ -7,12 +7,17 @@
     <style>
     .chart div {
   font: 10px sans-serif;
-  background-color: steelblue;
-  text-align: right;
+  background-color: white;
+  text-align: left;
   padding: 3px;
   margin: 1px;
   color: white;
+  width: 200px;
 }
+  div.caseJusticeBox {
+    display: inline;
+    width: 100px;
+  }
     </style>
   </head>
   <body>
@@ -38,19 +43,39 @@ var x = d3.scale.linear()
 
 d3.csv("data/scd_since2000.csv", function(d) {
   return {
+    caseId: d.caseId,
     decisionDate: d.dateDecision, // convert "Year" column to Date
     justiceName: d.justiceName,
     justiceID: +d.justice,
     vote: +d.direction // convert "Length" column to number
   };
 }, function(error, rows) {
-  console.log(rows);
+//  console.log(rows);
+  
+  var nestedByCaseId = d3.nest().key(function(d) { return d.caseId; }).entries(rows);
+  console.log(nestedByCaseId);
+  
   d3.select(".chart")
   .selectAll("div")
-    .data(rows)
+    .data(nestedByCaseId)
   .enter().append("div")
-    .style("width", function(d) { return x(20*d.vote) + "px"; })
-    .text(function(d) { return d.justiceName; });
+    .attr("id", function(d) { return d.key; })
+    .each(function(d) {
+      console.log(d);
+      for (i = 0; i < d.values.length; i++) { 
+        d3.select(this).append("div").attr("class","caseJusticeBox").text(d.values[i].justiceName)
+        .style("background-color", function(d) { if (d.values[i].vote == 1) { return "steelblue"; } else { return "darkred"; } });
+      }
+      //d3.select(d.values).each(function(d) {
+        //d3.select(this)
+        //.append("p")
+        //.text(d.justiceName)
+      //})
+    })
+    //.style("background-color", function(d) { if (d.vote == 1) { return "steelblue"; } else { return "darkred"; } })
+    //.text(function(d) { return d.justiceName; });
+    //.text(function(d) { return d.key; })
+    .style("width", function(d) { return 100*d.values.length + "px"; })
 });
 
 
