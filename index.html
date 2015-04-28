@@ -21,25 +21,15 @@
     </style>
   </head>
   <body>
+  
+  <h1>Supreme Court Jukebox</h1>
+  
   <div class="chart"></div>
     <script type="text/javascript">
 
-var data = [4, 9, 5, 16, 23, 42];
-
 var x = d3.scale.linear()
-    .domain([0, d3.max(data)])
+    .domain([0, 100])
     .range([0, 420]);
-
-//d3.select(".chart")
-//  .selectAll("div")
-//    .data(data)
-//  .enter().append("div")
-//    .style("width", function(d) { return x(d) + "px"; })
-//    .text(function(d) { return d; });
-    
-//d3.csv("http://homes.cs.washington.edu/~tws10/scd.csv")
-//    .row(function(d) { return {key: d.key, value: +d.value}; })
-//    .get(function(error, rows) { console.log(rows); });
 
 d3.csv("data/scd_since2000.csv", function(d) {
   return {
@@ -53,9 +43,47 @@ d3.csv("data/scd_since2000.csv", function(d) {
 //  console.log(rows);
   
   var nestedByCaseId = d3.nest().key(function(d) { return d.caseId; }).entries(rows);
-  console.log(nestedByCaseId);
+  //console.log(nestedByCaseId);
   
-  d3.select(".chart")
+  var svgContainer = d3.select("body").append("svg")
+                                     .attr("width", 900)
+                                     .attr("height", 2000);
+                                     
+  var row = svgContainer.selectAll("g")
+    .data(nestedByCaseId).enter().append("g")
+    .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  row.each(function(d) {
+    //console.log(d);
+    for (i=0; i < d.values.length; i++) {
+      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" + i * 100 + ",0)"; });
+      
+      cell.append("rect").attr("width",98).attr("height",18)
+        .attr("style",function(d) { if (d.values[i].vote == 1) { return "fill:steelblue;" } else  { return "fill:darkred;"; } });
+      cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.values[i].justiceName; });
+    }
+  });
+
+  /*row.append("rect").attr("width",100).attr("height",20).attr("style","fill:rgb(100,100,255);");
+         
+  row.append("text")
+    .attr("x", function(d) { return 5; })
+    .attr("y", 10)
+    .attr("dy", ".35em")
+    .text(function(d) { return d.key; });  */    
+    
+                          
+  /*svgContainer.selectAll("rect").data(nestedByCaseId).enter()
+    .append("rect").attr("width",100).attr("height",20)
+    .each(function(d) {
+      //console.log(d);
+      for (i = 0; i < d.values.length; i++) { 
+        d3.select(this).append("div").attr("class","caseJusticeBox").text(d.values[i].justiceName)
+        .style("background-color", function(d) { if (d.values[i].vote == 1) { return "steelblue"; } else { return "darkred"; } });
+      }
+    })
+    .style("width", function(d) { return 100*d.values.length + "px"; })*/
+  /*d3.select(".chart")
   .selectAll("div")
     .data(nestedByCaseId)
   .enter().append("div")
@@ -66,16 +94,8 @@ d3.csv("data/scd_since2000.csv", function(d) {
         d3.select(this).append("div").attr("class","caseJusticeBox").text(d.values[i].justiceName)
         .style("background-color", function(d) { if (d.values[i].vote == 1) { return "steelblue"; } else { return "darkred"; } });
       }
-      //d3.select(d.values).each(function(d) {
-        //d3.select(this)
-        //.append("p")
-        //.text(d.justiceName)
-      //})
     })
-    //.style("background-color", function(d) { if (d.vote == 1) { return "steelblue"; } else { return "darkred"; } })
-    //.text(function(d) { return d.justiceName; });
-    //.text(function(d) { return d.key; })
-    .style("width", function(d) { return 100*d.values.length + "px"; })
+    .style("width", function(d) { return 100*d.values.length + "px"; })*/
 });
 
 
