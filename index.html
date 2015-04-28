@@ -27,10 +27,6 @@
   <div class="chart"></div>
     <script type="text/javascript">
 
-var x = d3.scale.linear()
-    .domain([0, 100])
-    .range([0, 420]);
-
 d3.csv("data/scd_since2000.csv", function(d) {
   return {
     caseId: d.caseId,
@@ -43,26 +39,47 @@ d3.csv("data/scd_since2000.csv", function(d) {
 //  console.log(rows);
   
   var nestedByCaseId = d3.nest().key(function(d) { return d.caseId; }).entries(rows);
-  //console.log(nestedByCaseId);
+  console.log(nestedByCaseId);
+  
+  var numCases = nestedByCaseId.length
+  console.log(numCases);
+  
+  var gridWidth = 900;
+  var gridHeight = numCases*20;
+  var xScale = d3.scale.linear()
+    .domain([0, 9])
+    .range([0, gridWidth]),
+      yScale = d3.scale.linear()
+    .domain([0, numCases])
+    .range([0, gridHeight]);
   
   var svgContainer = d3.select("body").append("svg")
-                                     .attr("width", 900)
-                                     .attr("height", 2000);
+                                     .attr("width", gridWidth)
+                                     .attr("height", gridHeight);
                                      
   var row = svgContainer.selectAll("g")
     .data(nestedByCaseId).enter().append("g")
-    .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+    .attr("transform", function(d, i) { return "translate(0," + yScale(i) + ")"; });
 
   row.each(function(d) {
     //console.log(d);
     for (i=0; i < d.values.length; i++) {
-      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" + i * 100 + ",0)"; });
+      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" + xScale(i) + ",0)"; });
       
       cell.append("rect").attr("width",98).attr("height",18)
         .attr("style",function(d) { if (d.values[i].vote == 1) { return "fill:steelblue;" } else  { return "fill:darkred;"; } });
       cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.values[i].justiceName; });
     }
   });
+  
+  var zoom = d3.behavior.zoom()
+    .y(yScale)
+    .on('zoom',function() {
+      var y = zoom.translate()[1];
+      console.log(y);
+    });
+
+  svgContainer.call(zoom);
 
   /*row.append("rect").attr("width",100).attr("height",20).attr("style","fill:rgb(100,100,255);");
          
