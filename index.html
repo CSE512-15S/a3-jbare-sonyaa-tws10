@@ -43,37 +43,49 @@ d3.csv("data/scd_since2000.csv", function(d) {
   var nestedByCaseId = d3.nest().key(function(d) { return d.caseId; }).entries(rows);
   //console.log(nestedByCaseId);
   
-  var numCases = nestedByCaseId.length
+  var numCases = nestedByCaseId.length;
   //console.log(numCases);
   
+  var boxHeight = 20;
+  var boxesInView = 20;
+  var yMax = boxHeight*(numCases-boxesInView);
+  
   var gridWidth = 900;
-  var gridHeight = 400;//numCases*20;
+  var gridHeight = boxesInView*boxHeight;
   var xScale = d3.scale.linear()
     .domain([0, 9])
     .range([0, gridWidth]),
       
       yScale = d3.scale.linear()
-    .domain([0, 20])
+    .domain([0, boxesInView])
     .range([0, gridHeight]);
+
 
   var scrollWidth = 100;
   
-  var svgContainer = d3.select("body").append("svg")
+  var svg = d3.select("body").append("svg")
                                      .attr("width", gridWidth + scrollWidth)
                                      .attr("height", gridHeight);
   
+  var svgContainer = svg.append("g");
+  
   var yAxis = d3.svg.axis()
     .scale(yScale)
-    .orient('left')
-    .ticks(8);
+    .orient("left");
+    //.ticks(8);
+    
+  svgContainer.append("g")
+    .attr("class", "y axis") 
+    .attr("transform", "translate(100,0)")
+    .call(yAxis);
 
-  var svgScroller = svgContainer.append("rect")
+  /*var svgScroller = svgContainer.append("rect")
                                        .attr("width", scrollWidth)
                                        .attr("height", gridHeight)
                                        .attr("style", "fill:gray")
                                        .append('g')
                                        .attr('class', 'y axis')
-                                       .call(yAxis);
+                                       .call(yAxis);&*/
 
 
   var mainChart = svgContainer.append("g")
@@ -90,7 +102,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     for (i=0; i < d.values.length; i++) {
       var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" + xScale(i) + ",0)"; });
       
-      cell.append("rect").attr("width",98).attr("height",18)
+      cell.append("rect").attr("width",98).attr("height",boxHeight-2)
         .attr("style",function(d) { if (d.values[i].vote == 1) { return "fill:steelblue;" } else  { return "fill:darkred;"; } });
       cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.values[i].justiceName; });
     }
@@ -99,45 +111,16 @@ d3.csv("data/scd_since2000.csv", function(d) {
   var zoom = d3.behavior.zoom()
     .y(yScale)
     .on('zoom',function() {
-      //var y = zoom.translate()[1];
-      //console.log(y);
-      yScale.domain([1,21]);
+      var y = Math.min(Math.max(-yMax,zoom.translate()[1]),0);
+      zoom.scale(1);
+      zoom.translate([0, y]);
+      console.log(y);
+      svgContainer.select(".y.axis").call(yAxis);
+      mainChart.attr("transform","translate(" + scrollWidth + "," + y + ")");
     });
 
   svgContainer.call(zoom);
 
-  /*row.append("rect").attr("width",100).attr("height",20).attr("style","fill:rgb(100,100,255);");
-         
-  row.append("text")
-    .attr("x", function(d) { return 5; })
-    .attr("y", 10)
-    .attr("dy", ".35em")
-    .text(function(d) { return d.key; });  */    
-    
-                          
-  /*svgContainer.selectAll("rect").data(nestedByCaseId).enter()
-    .append("rect").attr("width",100).attr("height",20)
-    .each(function(d) {
-      //console.log(d);
-      for (i = 0; i < d.values.length; i++) { 
-        d3.select(this).append("div").attr("class","caseJusticeBox").text(d.values[i].justiceName)
-        .style("background-color", function(d) { if (d.values[i].vote == 1) { return "steelblue"; } else { return "darkred"; } });
-      }
-    })
-    .style("width", function(d) { return 100*d.values.length + "px"; })*/
-  /*d3.select(".chart")
-  .selectAll("div")
-    .data(nestedByCaseId)
-  .enter().append("div")
-    .attr("id", function(d) { return d.key; })
-    .each(function(d) {
-      console.log(d);
-      for (i = 0; i < d.values.length; i++) { 
-        d3.select(this).append("div").attr("class","caseJusticeBox").text(d.values[i].justiceName)
-        .style("background-color", function(d) { if (d.values[i].vote == 1) { return "steelblue"; } else { return "darkred"; } });
-      }
-    })
-    .style("width", function(d) { return 100*d.values.length + "px"; })*/
 });
 
 
