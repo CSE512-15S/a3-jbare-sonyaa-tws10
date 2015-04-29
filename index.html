@@ -67,7 +67,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   }
   console.log(activeJustices.size());
   
-  breakpoints = [];
+  var breakpoints = [];
   activeJusticesByBreakpoint = [activeJustices.values()];
   while (true) {
     var nextToLeave = activeJustices.values()[0];
@@ -106,12 +106,16 @@ d3.csv("data/scd_since2000.csv", function(d) {
   console.log(activeJusticesByBreakpoint);
   console.log(justiceColumnsByBreakpoint);
   
+  // set up size variables
   var boxHeight = 20;
   var boxesInView = 20;
   var yMax = boxHeight*(numCases-boxesInView);
   
   var gridWidth = 900;
   var gridHeight = boxesInView*boxHeight;
+    
+  var scrollWidth = 100;
+  var headerHeight = 100;
   
   // set up x and y scales
   var xScale = d3.scale.linear()
@@ -121,16 +125,15 @@ d3.csv("data/scd_since2000.csv", function(d) {
       yScale = d3.scale.linear()
     .domain([0, boxesInView])
     .range([0, gridHeight]);
-
-
-  var scrollWidth = 100;
   
+  // set up SVG
   var svg = d3.select("body").append("svg")
                                      .attr("width", gridWidth + scrollWidth)
-                                     .attr("height", gridHeight);
+                                     .attr("height", gridHeight + headerHeight);
   
   var svgContainer = svg.append("g");
   
+  // set up and add y axis
   var yAxis = d3.svg.axis()
     .scale(yScale)
     .orient("left");
@@ -138,8 +141,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
     
   svgContainer.append("g")
     .attr("class", "y axis") 
-    .attr("transform", "translate(100,0)")
+    .attr("transform", "translate(" + scrollWidth + "," + headerHeight + ")")
     .call(yAxis);
+    
 
   /*var svgScroller = svgContainer.append("rect")
                                        .attr("width", scrollWidth)
@@ -150,11 +154,40 @@ d3.csv("data/scd_since2000.csv", function(d) {
                                        .call(yAxis);&*/
 
 
+  // set up grid
   var mainChart = svgContainer.append("g")
-                              .attr("transform", function(d) { return "translate(" + scrollWidth + ",0)"; })
+                              .attr("transform", function(d) { return "translate(" + scrollWidth + "," +headerHeight+")"; })
                               .attr("width", gridWidth)
                               .attr("height", gridHeight);
-                                     
+              
+  // set up and add header
+  var header = svgContainer.append("g")
+    .attr("class", "header")
+    .attr("transform", "translate(" + scrollWidth + ",0)")
+    .attr("width", gridWidth)
+    .attr("height", headerHeight);
+  header.append("rect")
+    .attr("width", gridWidth)
+    .attr("height", headerHeight)
+    .attr("style","fill:white");
+  for (var i=0; i<9; i++) {
+    header.append("text")
+      .attr("x",100*i+5)
+      .attr("y",headerHeight-15)
+      .attr("class","label"+i);
+      //.text("justice " + i);
+  }
+               
+  function applyLabels(breakpoint) {
+    for (var i=0; i<9; i++) {
+      var justiceID = activeJusticesByBreakpoint[breakpoint][i];
+      header.select(".label"+i).text("justice " + justiceID);
+    }
+  }
+  
+  applyLabels(0);
+            
+  // fill grid                      
   var row = mainChart.selectAll("g")
     .data(nestedByCaseId).enter().append("g")
     .attr("transform", function(d, i) { return "translate(0," + yScale(i) + ")"; });
@@ -167,7 +200,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     for (j=0; j < d.values.length; j++) {
       var justice = d.values[j].justiceID;
       var column = justiceColumnsByBreakpoint[bp][justice];
-      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" + xScale(column) + ",0)"; });
+      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" +  (1+xScale(column)) + ",1)"; });
       
       cell.append("rect").attr("width",98).attr("height",boxHeight-2)
         .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:steelblue;" } else  { return "fill:darkred;"; } });
@@ -184,9 +217,13 @@ d3.csv("data/scd_since2000.csv", function(d) {
       zoom.translate([0, y]);
       //console.log(y);
       svgContainer.select(".y.axis").call(yAxis);
-      mainChart.attr("transform","translate(" + scrollWidth + "," + y + ")");
+      mainChart.attr("transform","translate(" + scrollWidth + "," + (y+headerHeight) + ")");
       
-      //console.log(yScale.domain());
+      var bp = 0;
+      while (breakpoints[bp] <= yScale.domain()[1]) { bp++; }
+      //console.log(yScale.domain()[1] + " -> " + bp);
+      
+      applyLabels(bp);
     });
 
   svgContainer.call(zoom);
