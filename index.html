@@ -5,31 +5,29 @@
     <title>A3</title>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <style>
-    .chart div {
-  font: 10px sans-serif;
-  background-color: white;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: white;
-  width: 200px;
-}
-  div.caseJusticeBox {
-    display: inline;
-    width: 100px;
-  }
+      .chart div {
+        font: 10px sans-serif;
+        background-color: white;
+        text-align: left;
+        padding: 3px;
+        margin: 1px;
+        color: white;
+        width: 200px;
+      }
+      div.caseJusticeBox {
+        display: inline;
+        width: 100px;
+      }
     </style>
   </head>
   <body>
   
-  <h1>Supreme Court Jukebox</h1>
-  
-  <div class="chart"></div>
-    <script type="text/javascript">
+    <h1>Supreme Court Jukebox</h1>
+    
+    <div class="chart"></div>
+  </body>
 
-var x = d3.scale.linear()
-    .domain([0, 100])
-    .range([0, 420]);
+<script type="text/javascript">
 
 d3.csv("data/scd_since2000.csv", function(d) {
   return {
@@ -40,66 +38,200 @@ d3.csv("data/scd_since2000.csv", function(d) {
     vote: +d.direction // convert "Length" column to number
   };
 }, function(error, rows) {
-//  console.log(rows);
   
+  // create a nested structure grouping all jusice decisions by case
   var nestedByCaseId = d3.nest().key(function(d) { return d.caseId; }).entries(rows);
-  //console.log(nestedByCaseId);
-  
-  var svgContainer = d3.select("body").append("svg")
-                                     .attr("width", 900)
-                                     .attr("height", 2000);
-                                     
-  var row = svgContainer.selectAll("g")
-    .data(nestedByCaseId).enter().append("g")
-    .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+    
+  var numCases = nestedByCaseId.length;
 
-  row.each(function(d) {
-    //console.log(d);
-    for (i=0; i < d.values.length; i++) {
-      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" + i * 100 + ",0)"; });
+  // compute first and last active cases for all justices
+  var firstCases = {};
+  var lastCases = {};
+   for (var i = 0; i < numCases; i ++ ) {
+    for (var j = 0; j < nestedByCaseId[i].values.length; j++) {
+      var justice = nestedByCaseId[i].values[j].justiceID;
+      if (firstCases[justice] == undefined) {
+        firstCases[justice] = i;
+      }
+      lastCases[justice] = i;
+    }
+  }
+  //console.log(firstCases);
+  //console.log(lastCases);
+
+  // compute the break-points, i.e. when the set of active justices change
+  var activeJustices = d3.set();
+  //console.log(nestedByCaseId[0]);
+  for (var j = 0; j < nestedByCaseId[0].values.length; j++) {
+	  activeJustices.add(nestedByCaseId[0].values[j].justiceID);
+  }
+  console.log(activeJustices.size());
+  
+  var breakpoints = [];
+  activeJusticesByBreakpoint = [activeJustices.values()];
+  while (true) {
+    var nextToLeave = activeJustices.values()[0];
+    for (j = 1; j < activeJustices.size(); ++j) {
+      if (lastCases[activeJustices.values()[j]] < lastCases[nextToLeave]) {
+        nextToLeave = activeJustices.values()[j];
+      }
+    }
+    if (lastCases[nextToLeave] == (numCases - 1)) { break; }
+    //console.log("next to leave: " + nextToLeave);
+    activeJustices.remove(nextToLeave);
+    var nextToArrive;
+    for (j in firstCases) {
+      if (firstCases[j] == lastCases[nextToLeave]+1) {
+        nextToArrive = j;
+      }
+    }
+    activeJustices.add(nextToArrive);
+    breakpoints.push(lastCases[nextToLeave]+1);
+    activeJusticesByBreakpoint.push(activeJustices.values());
+    //console.log("next to arrive: " + nextToArrive);
+  }
+  breakpoints.push(numCases);
+  
+  // compute justice column per region of the chart
+  justiceColumnsByBreakpoint = [];
+  for (i in activeJusticesByBreakpoint) {
+    var justiceColumns = {};
+    for (var j=0; j<9; j++) {
+      justiceColumns[activeJusticesByBreakpoint[i][j]] = j;
+    }
+    justiceColumnsByBreakpoint.push(justiceColumns);
+  }
+  
+  console.log(breakpoints);
+  console.log(activeJusticesByBreakpoint);
+  console.log(justiceColumnsByBreakpoint);
+  
+  // set up size variables
+  var boxHeight = 20;
+  var boxesInView = 20;
+  var yMax = boxHeight*(numCases-boxesInView);
+  
+  var gridWidth = 900;
+  var gridHeight = boxesInView*boxHeight;
+    
+  var scrollWidth = 100;
+  var headerHeight = 100;
+  
+  // set up x and y scales
+  var xScale = d3.scale.linear()
+    .domain([0, 9])
+    .range([0, gridWidth]),
       
-      cell.append("rect").attr("width",98).attr("height",18)
-        .attr("style",function(d) { if (d.values[i].vote == 1) { return "fill:steelblue;" } else  { return "fill:darkred;"; } });
-      cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.values[i].justiceName; });
+      yScale = d3.scale.linear()
+    .domain([0, boxesInView])
+    .range([0, gridHeight]);
+  
+  // set up SVG
+  var svg = d3.select("body").append("svg")
+                                     .attr("width", gridWidth + scrollWidth)
+                                     .attr("height", gridHeight + headerHeight);
+  
+  var svgContainer = svg.append("g");
+  
+  // set up and add y axis
+  var yAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient("left");
+    //.ticks(8);
+    
+  svgContainer.append("g")
+    .attr("class", "y axis") 
+    .attr("transform", "translate(" + scrollWidth + "," + headerHeight + ")")
+    .call(yAxis);
+    
+
+  /*var svgScroller = svgContainer.append("rect")
+                                       .attr("width", scrollWidth)
+                                       .attr("height", gridHeight)
+                                       .attr("style", "fill:gray")
+                                       .append('g')
+                                       .attr('class', 'y axis')
+                                       .call(yAxis);&*/
+
+
+  // set up grid
+  var mainChart = svgContainer.append("g")
+                              .attr("transform", function(d) { return "translate(" + scrollWidth + "," +headerHeight+")"; })
+                              .attr("width", gridWidth)
+                              .attr("height", gridHeight);
+              
+  // set up and add header
+  var header = svgContainer.append("g")
+    .attr("class", "header")
+    .attr("transform", "translate(" + scrollWidth + ",0)")
+    .attr("width", gridWidth)
+    .attr("height", headerHeight);
+  header.append("rect")
+    .attr("width", gridWidth)
+    .attr("height", headerHeight)
+    .attr("style","fill:white");
+  for (var i=0; i<9; i++) {
+    header.append("text")
+      .attr("x",100*i+5)
+      .attr("y",headerHeight-15)
+      .attr("class","label"+i);
+      //.text("justice " + i);
+  }
+               
+  function applyLabels(breakpoint) {
+    for (var i=0; i<9; i++) {
+      var justiceID = activeJusticesByBreakpoint[breakpoint][i];
+      header.select(".label"+i).text("justice " + justiceID);
+    }
+  }
+  
+  applyLabels(0);
+            
+  // fill grid                      
+  var row = mainChart.selectAll("g")
+    .data(nestedByCaseId).enter().append("g")
+    .attr("transform", function(d, i) { return "translate(0," + yScale(i) + ")"; });
+
+  row.each(function(d,i) {
+    //console.log(d);
+    var bp = 0;
+    while (breakpoints[bp] <= i) { bp++; }
+    //console.log(i + " -> " + bp);
+    for (j=0; j < d.values.length; j++) {
+      var justice = d.values[j].justiceID;
+      var column = justiceColumnsByBreakpoint[bp][justice];
+      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" +  (1+xScale(column)) + ",1)"; });
+      
+      cell.append("rect").attr("width",98).attr("height",boxHeight-2)
+        .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:steelblue;" } else  { return "fill:darkred;"; } });
+      cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.values[j].justiceName; });
     }
   });
+  
+  // add scrolling behavior
+  var zoom = d3.behavior.zoom()
+    .y(yScale)
+    .on('zoom',function() {
+      var y = Math.min(Math.max(-yMax,zoom.translate()[1]),0);
+      zoom.scale(1);
+      zoom.translate([0, y]);
+      //console.log(y);
+      svgContainer.select(".y.axis").call(yAxis);
+      mainChart.attr("transform","translate(" + scrollWidth + "," + (y+headerHeight) + ")");
+      
+      var bp = 0;
+      while (breakpoints[bp] <= yScale.domain()[1]) { bp++; }
+      //console.log(yScale.domain()[1] + " -> " + bp);
+      
+      applyLabels(bp);
+    });
 
-  /*row.append("rect").attr("width",100).attr("height",20).attr("style","fill:rgb(100,100,255);");
-         
-  row.append("text")
-    .attr("x", function(d) { return 5; })
-    .attr("y", 10)
-    .attr("dy", ".35em")
-    .text(function(d) { return d.key; });  */    
-    
-                          
-  /*svgContainer.selectAll("rect").data(nestedByCaseId).enter()
-    .append("rect").attr("width",100).attr("height",20)
-    .each(function(d) {
-      //console.log(d);
-      for (i = 0; i < d.values.length; i++) { 
-        d3.select(this).append("div").attr("class","caseJusticeBox").text(d.values[i].justiceName)
-        .style("background-color", function(d) { if (d.values[i].vote == 1) { return "steelblue"; } else { return "darkred"; } });
-      }
-    })
-    .style("width", function(d) { return 100*d.values.length + "px"; })*/
-  /*d3.select(".chart")
-  .selectAll("div")
-    .data(nestedByCaseId)
-  .enter().append("div")
-    .attr("id", function(d) { return d.key; })
-    .each(function(d) {
-      console.log(d);
-      for (i = 0; i < d.values.length; i++) { 
-        d3.select(this).append("div").attr("class","caseJusticeBox").text(d.values[i].justiceName)
-        .style("background-color", function(d) { if (d.values[i].vote == 1) { return "steelblue"; } else { return "darkred"; } });
-      }
-    })
-    .style("width", function(d) { return 100*d.values.length + "px"; })*/
+  svgContainer.call(zoom);
+
 });
 
 
-    </script>
-  </body>
+</script>
+  
 </html>
 
