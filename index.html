@@ -5,27 +5,29 @@
     <title>A3</title>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <style>
-    .chart div {
-  font: 10px sans-serif;
-  background-color: white;
-  text-align: left;
-  padding: 3px;
-  margin: 1px;
-  color: white;
-  width: 200px;
-}
-  div.caseJusticeBox {
-    display: inline;
-    width: 100px;
-  }
+      .chart div {
+        font: 10px sans-serif;
+        background-color: white;
+        text-align: left;
+        padding: 3px;
+        margin: 1px;
+        color: white;
+        width: 200px;
+      }
+      div.caseJusticeBox {
+        display: inline;
+        width: 100px;
+      }
     </style>
   </head>
   <body>
   
-  <h1>Supreme Court Jukebox</h1>
-  
-  <div class="chart"></div>
-    <script type="text/javascript">
+    <h1>Supreme Court Jukebox</h1>
+    
+    <div class="chart"></div>
+  </body>
+
+<script type="text/javascript">
 
 d3.csv("data/scd_since2000.csv", function(d) {
   return {
@@ -39,25 +41,47 @@ d3.csv("data/scd_since2000.csv", function(d) {
 //  console.log(rows);
   
   var nestedByCaseId = d3.nest().key(function(d) { return d.caseId; }).entries(rows);
-  console.log(nestedByCaseId);
+  //console.log(nestedByCaseId);
   
   var numCases = nestedByCaseId.length
-  console.log(numCases);
+  //console.log(numCases);
   
   var gridWidth = 900;
-  var gridHeight = numCases*20;
+  var gridHeight = 400;//numCases*20;
   var xScale = d3.scale.linear()
     .domain([0, 9])
     .range([0, gridWidth]),
+      
       yScale = d3.scale.linear()
-    .domain([0, numCases])
+    .domain([0, 20])
     .range([0, gridHeight]);
+
+  var scrollWidth = 100;
   
   var svgContainer = d3.select("body").append("svg")
-                                     .attr("width", gridWidth)
+                                     .attr("width", gridWidth + scrollWidth)
                                      .attr("height", gridHeight);
+  
+  var yAxis = d3.svg.axis()
+    .scale(yScale)
+    .orient('left')
+    .ticks(8);
+
+  var svgScroller = svgContainer.append("rect")
+                                       .attr("width", scrollWidth)
+                                       .attr("height", gridHeight)
+                                       .attr("style", "fill:gray")
+                                       .append('g')
+                                       .attr('class', 'y axis')
+                                       .call(yAxis);
+
+
+  var mainChart = svgContainer.append("g")
+                              .attr("transform", function(d) { return "translate(" + scrollWidth + ",0)"; })
+                              .attr("width", gridWidth)
+                              .attr("height", gridHeight);
                                      
-  var row = svgContainer.selectAll("g")
+  var row = mainChart.selectAll("g")
     .data(nestedByCaseId).enter().append("g")
     .attr("transform", function(d, i) { return "translate(0," + yScale(i) + ")"; });
 
@@ -75,8 +99,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
   var zoom = d3.behavior.zoom()
     .y(yScale)
     .on('zoom',function() {
-      var y = zoom.translate()[1];
-      console.log(y);
+      //var y = zoom.translate()[1];
+      //console.log(y);
+      yScale.domain([1,21]);
     });
 
   svgContainer.call(zoom);
@@ -116,7 +141,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
 });
 
 
-    </script>
-  </body>
+</script>
+  
 </html>
 
