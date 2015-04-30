@@ -19,6 +19,10 @@
         display: inline;
         width: 100px;
       }
+      .overlay {
+          stroke-width: 0px;
+          fill-opacity: 0.1;
+      }
     </style>
   </head>
   <body>
@@ -48,7 +52,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   // compute first and last active cases for all justices
   var firstCases = {};
   var lastCases = {};
-   for (var i = 0; i < numCases; i ++ ) {
+  for (var i = 0; i < numCases; i ++ ) {
     for (var j = 0; j < nestedByCaseId[i].values.length; j++) {
       var justice = nestedByCaseId[i].values[j].justiceID;
       if (firstCases[justice] == undefined) {
@@ -56,6 +60,8 @@ d3.csv("data/scd_since2000.csv", function(d) {
       }
       lastCases[justice] = i;
     }
+    nestedByCaseId[i].num = i;
+
   }
   //console.log(firstCases);
   //console.log(lastCases);
@@ -111,7 +117,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   
   // set up size variables
   var rowHeight = 32;
-  var boxesInView = 16;
+  var boxesInView = 10;
   var yMax = rowHeight*(numCases-boxesInView);
   
   var columnWidth = 50;
@@ -128,14 +134,18 @@ d3.csv("data/scd_since2000.csv", function(d) {
   
   var startCase = 0;
   
+
+
   // set up x and y scales
   var xScale = d3.scale.linear()
     .domain([0, 9])
     .range([0, gridWidth]),
       
       yScale = d3.scale.linear()
-    .domain([startCase, startCase+boxesInView])
+    .domain([startCase, numCases])//startCase+boxesInView])
     .range([0, gridHeight]);
+
+  yScale.domain([startCase, boxesInView]);
   
   // set up SVG
   var svg = d3.select("body").append("svg")
@@ -292,7 +302,23 @@ d3.csv("data/scd_since2000.csv", function(d) {
   
   applyLabels(0);
 
+  function zoomer(d) { 
+    return d.num*rowHeight; 
+  }
+
+  var overlay = d3.svg.area()
+      .y(zoomer)
+      .x0(0)
+      .x1(gridWidth);
+
+  mainChart.append('path')
+      .attr('class', 'overlay')
+      .attr('d', overlay(nestedByCaseId))
+      .call(zoom);
+
   svgContainer.call(zoom);
+
+  
   
 });
 
