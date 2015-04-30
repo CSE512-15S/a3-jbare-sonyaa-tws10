@@ -4,6 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>A3</title>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="justices.js" charset="utf-8"></script>
     <style>
       .chart div {
         font: 10px sans-serif;
@@ -68,7 +69,8 @@ d3.csv("data/scd_since2000.csv", function(d) {
   console.log(activeJustices.size());
   
   var breakpoints = [];
-  activeJusticesByBreakpoint = [activeJustices.values()];
+  var activeJusticesByBreakpoint = [activeJustices.values()];
+  var justiceAdditionsByBreakpoint = [];
   while (true) {
     var nextToLeave = activeJustices.values()[0];
     for (j = 1; j < activeJustices.size(); ++j) {
@@ -88,6 +90,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     activeJustices.add(nextToArrive);
     breakpoints.push(lastCases[nextToLeave]+1);
     activeJusticesByBreakpoint.push(activeJustices.values());
+    justiceAdditionsByBreakpoint.push(nextToArrive);
     //console.log("next to arrive: " + nextToArrive);
   }
   breakpoints.push(numCases);
@@ -107,15 +110,23 @@ d3.csv("data/scd_since2000.csv", function(d) {
   console.log(justiceColumnsByBreakpoint);
   
   // set up size variables
-  var boxHeight = 20;
-  var boxesInView = 20;
-  var yMax = boxHeight*(numCases-boxesInView);
+  var rowHeight = 32;
+  var boxesInView = 16;
+  var yMax = rowHeight*(numCases-boxesInView);
   
-  var gridWidth = 900;
-  var gridHeight = boxesInView*boxHeight;
+  var columnWidth = 50;
+  
+  var gridWidth = 9*columnWidth;
+  var gridHeight = boxesInView*rowHeight;
     
   var scrollWidth = 100;
-  var headerHeight = 100;
+  var sideLabelWidth = 200;
+  
+  var headerHeight = 150;
+  
+  var labelAngle = -60;
+  
+  var startCase = 0;
   
   // set up x and y scales
   var xScale = d3.scale.linear()
@@ -123,12 +134,12 @@ d3.csv("data/scd_since2000.csv", function(d) {
     .range([0, gridWidth]),
       
       yScale = d3.scale.linear()
-    .domain([0, boxesInView])
+    .domain([startCase, startCase+boxesInView])
     .range([0, gridHeight]);
   
   // set up SVG
   var svg = d3.select("body").append("svg")
-                                     .attr("width", gridWidth + scrollWidth)
+                                     .attr("width", gridWidth + scrollWidth + sideLabelWidth)
                                      .attr("height", gridHeight + headerHeight);
   
   var svgContainer = svg.append("g");
@@ -167,26 +178,61 @@ d3.csv("data/scd_since2000.csv", function(d) {
     .attr("width", gridWidth)
     .attr("height", headerHeight);
   header.append("rect")
-    .attr("width", gridWidth)
+    .attr("width", gridWidth + sideLabelWidth)
     .attr("height", headerHeight)
     .attr("style","fill:white");
   for (var i=0; i<9; i++) {
     header.append("text")
-      .attr("x",100*i+5)
-      .attr("y",headerHeight-15)
+      .attr("transform","translate("+(columnWidth*(i+0.5))+","+(headerHeight-5)+")rotate("+labelAngle+")")
       .attr("class","label"+i);
       //.text("justice " + i);
   }
+  
+  // set up side label
+  var sideLabel = mainChart.append("text")
+    .attr("transform","translate("+gridWidth+",0)")
+    .text("");
                
-  function applyLabels(breakpoint) {
-    for (var i=0; i<9; i++) {
-      var justiceID = activeJusticesByBreakpoint[breakpoint][i];
-      header.select(".label"+i).text("justice " + justiceID);
+  // draw lines
+  for (var i=0; i<9; i++) {
+    mainChart.append("line")
+      .attr("x1",columnWidth*(i+0.5)).attr("y1",yScale(0))
+      .attr("x2",columnWidth*(i+0.5)).attr("y2",yScale(breakpoints[0]-0.5))
+      .attr("stroke-width",6)
+      .attr("stroke","lightgray");
+  }
+  for (var i=1; i<breakpoints.length; i++) {
+    var lastbp = breakpoints[i-1];
+    var bp = breakpoints[i];
+    // connecting line
+    for (var j=0; j<9; j++) {
+      var justiceID = activeJusticesByBreakpoint[i-1][j];
+      var thisColumn = justiceColumnsByBreakpoint[i][justiceID];
+      if (thisColumn != undefined) {
+        var lastColumn = justiceColumnsByBreakpoint[i-1][justiceID];
+        //console.log("Justice " + justiceID + " moved from " + lastColumn + " to " + thisColumn);
+        mainChart.append("line")
+          .attr("x1",columnWidth*(lastColumn+0.5)).attr("y1",yScale(lastbp-0.5))
+          .attr("x2",columnWidth*(thisColumn+0.5)).attr("y2",yScale(lastbp+0.5))
+          .attr("stroke-width",6)
+          .attr("stroke","lightgray");
+      }
+    }
+    mainChart.append("line")
+      .attr("x1",columnWidth*(8.5)).attr("y1",yScale(lastbp+0.5))
+      .attr("x2",columnWidth*(8.5)+30).attr("y2",yScale(lastbp+0.5))
+      .attr("stroke-width",6)
+      .attr("stroke","lightgray");
+    // straight line
+    for (var j=0; j<9; j++) {
+      mainChart.append("line")
+        .attr("x1",columnWidth*(j+0.5)).attr("y1",yScale(lastbp+0.5))
+        .attr("x2",columnWidth*(j+0.5)).attr("y2",yScale(bp-0.5))
+        .attr("stroke-width",6)
+        .attr("stroke","lightgray");
     }
   }
   
-  applyLabels(0);
-            
   // fill grid                      
   var row = mainChart.selectAll("g")
     .data(nestedByCaseId).enter().append("g")
@@ -200,11 +246,12 @@ d3.csv("data/scd_since2000.csv", function(d) {
     for (j=0; j < d.values.length; j++) {
       var justice = d.values[j].justiceID;
       var column = justiceColumnsByBreakpoint[bp][justice];
-      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" +  (1+xScale(column)) + ",1)"; });
+      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" +  (xScale(column)) + ",4)"; });
       
-      cell.append("rect").attr("width",98).attr("height",boxHeight-2)
-        .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:steelblue;" } else  { return "fill:darkred;"; } });
-      cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.values[j].justiceName; });
+      //cell.append("rect").attr("width",columnWidth-26).attr("height",rowHeight-8)
+      cell.append("circle").attr("cx",columnWidth/2).attr("cy",rowHeight/2).attr("r",(rowHeight-8)/2)
+        .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:darkred;" } else if (d.values[j].vote == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
+      //cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.values[j].justiceName; });
     }
   });
   
@@ -220,14 +267,33 @@ d3.csv("data/scd_since2000.csv", function(d) {
       mainChart.attr("transform","translate(" + scrollWidth + "," + (y+headerHeight) + ")");
       
       var bp = 0;
-      while (breakpoints[bp] <= yScale.domain()[1]) { bp++; }
+      while (breakpoints[bp] <= yScale.domain()[0]) { bp++; }
       //console.log(yScale.domain()[1] + " -> " + bp);
       
       applyLabels(bp);
     });
 
-  svgContainer.call(zoom);
+  
+  // setup function for applying labels
+  function applyLabels(breakpoint) {
+    for (var i=0; i<9; i++) {
+      var justiceID = activeJusticesByBreakpoint[breakpoint][i];
+      header.select(".label"+i).text(justiceDataMap[justiceID][0]);
+    }
+    
+    if (breakpoints[breakpoint] <= yScale.domain()[1]) {
+      var addedJustice = justiceAdditionsByBreakpoint[breakpoint];
+      sideLabel.text(justiceDataMap[addedJustice][0])
+        .attr("transform","translate("+(gridWidth+10)+","+(-zoom.translate()[1]+yScale(breakpoints[breakpoint]+0.5)+5)+")");
+    } else {
+      sideLabel.text("");
+    }
+  }
+  
+  applyLabels(0);
 
+  svgContainer.call(zoom);
+  
 });
 
 
