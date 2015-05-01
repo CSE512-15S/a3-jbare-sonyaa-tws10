@@ -23,6 +23,11 @@
           stroke-width: 0px;
           fill-opacity: 0.1;
       }
+      .viewport {
+          stroke: gray;
+          fill: black;
+          fill-opacity: 0.2;
+      }
     </style>
   </head>
   <body>
@@ -149,10 +154,56 @@ d3.csv("data/scd_since2000.csv", function(d) {
   
   // set up SVG
   var svg = d3.select("body").append("svg")
-                                     .attr("width", gridWidth + scrollWidth + sideLabelWidth)
-                                     .attr("height", gridHeight + headerHeight);
+                                    .attr("class", "svg")
+                                    .attr("width", gridWidth + scrollWidth + sideLabelWidth)
+                                    .attr("height", gridHeight + headerHeight);
+
+  var scrollBrush = svg.append("g")
+                      .attr("class", "scrollBrush")
+                      .attr("transform", function(d) { return "translate(0," +headerHeight+")"; })
+                      .attr("width", scrollWidth)
+                      .attr("height", gridHeight);
+
+  var brushXScale = d3.time.scale()
+          .domain([0, 9])
+          .range([0, scrollWidth]),
+      brushYScale = d3.scale.linear()
+          .domain([0, numCases])
+          .range([0, gridHeight]);
+
+  var viewport = d3.svg.brush()
+      .y(brushYScale)
+      .on("brush", function () {
+          yScale.domain(viewport.empty() ? brushYScale.domain() : viewport.extent());
+          
+      });
+
+  scrollBrush.append("g")
+    .attr("class", "viewport")
+    .call(viewport)
+    .selectAll("rect")
+    .attr("height", 50)
+    .attr("width", scrollWidth);
+
+  viewport.on("brushend", function () {
+          updateZoomFromChart();
+      });
+
+  function updateZoomFromChart() {
+
+      zoom.y(yScale);
+      
+      var fullDomain = numCases,
+          currentDomain = yScale.domain()[1] - yScale.domain()[0];
+
+      var minScale = currentDomain / fullDomain,
+          maxScale = minScale * 20;
+
+      zoom.scaleExtent([minScale, maxScale]);
+  }
   
-  var svgContainer = svg.append("g");
+  var svgContainer = svg.append("g")
+                        .attr("class", "svgContainer");
   
   // set up and add y axis
   var yAxis = d3.svg.axis()
@@ -177,6 +228,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
 
   // set up grid
   var mainChart = svgContainer.append("g")
+                              .attr("class", "mainChart")
                               .attr("transform", function(d) { return "translate(" + scrollWidth + "," +headerHeight+")"; })
                               .attr("width", gridWidth)
                               .attr("height", gridHeight);
