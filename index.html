@@ -504,6 +504,10 @@ d3.csv("data/scd_since2000.csv", function(d) {
     var showJusticeView = function(justiceId) {
         d3.select("h3").text(justiceDataMap[justiceId][0]);
         var controlValue = d3.select('input[name="justiceViewType"]:checked').node().value;
+        d3.selectAll('input[name="justiceViewType"]')
+                .on("click", function () {
+                    showJusticeView(justiceId);
+                });
         var runningTotalData = computeRunningTotal(justiceId);
 
         var margin = {top: 30, right: 20, bottom: 30, left: 75},
