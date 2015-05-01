@@ -39,10 +39,10 @@
   
     <h1>Supreme Court Jukebox</h1>
 
-    <form action="">
-      <input type="radio" name="justiceViewType" value="direction" checked>Liberal/Conservative<br>
-      <input type="radio" name="justiceViewType" value="majority">Majority/Minority
-    </form>
+    <!--<form action="">-->
+      <!--<input type="radio" name="justiceViewType" value="direction" checked>Liberal/Conservative<br>-->
+      <!--<input type="radio" name="justiceViewType" value="majority">Majority/Minority-->
+    <!--</form>-->
   </body>
 
 <script type="text/javascript">
@@ -129,6 +129,10 @@ d3.csv("data/scd_since2000.csv", function(d) {
   var showJusticeView = function(justiceId) {
     d3.select("h3").text(justiceDataMap[justiceId][0]);
     var controlValue = d3.select('input[name="justiceViewType"]:checked').node().value;
+      d3.selectAll('input[name="justiceViewType"]')
+              .on("click", function () {
+                  showJusticeView(+d3.select("body").select("svg.justiceView").attr("justiceId"))
+              });
     var runningTotalData = computeRunningTotal(justiceId);
 
     var margin = {top: 30, right: 20, bottom: 30, left: 75},
@@ -243,15 +247,28 @@ d3.csv("data/scd_since2000.csv", function(d) {
       d3.select("body").append("div")
               .text(justiceDataMap[justice_id][0])
               .on("click", function () {
+              d3.select("form.justiceViewType").remove();
+              var form = d3.select("body").append("form").attr("class", "justiceViewType");
+              var controlNames = ["Liberal/conservative", "Majority/minority"];
+              var defaultIdx = 0;
+              var values = ["direction", "majority"];
+              var labels = form.selectAll("label")
+                      .data(controlNames)
+                      .enter()
+                      .append("label")
+                      .text(function(d) {return d;})
+                      .insert("input")
+                      .attr({
+                          type: "radio",
+                          name: "justiceViewType",
+                          value: function(d, i) {return values[i];}
+                      })
+                      .property("checked", function(d, i) {return i===defaultIdx;});
                 showJusticeView(justice_id)
               });
     }(j));
   }
 
-    d3.selectAll('input[name="justiceViewType"]')
-            .on("click", function () {
-                showJusticeView(+d3.select("body").select("svg.justiceView").attr("justiceId"))
-            });
 
 
   /////////////////////////////////////
