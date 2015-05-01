@@ -21,7 +21,7 @@
       }
       .overlay {
           stroke-width: 0px;
-          fill-opacity: 0.1;
+          fill-opacity: 0.05;
       }
       .viewport {
           stroke: gray;
@@ -45,7 +45,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     decisionDate: d.dateDecision, // convert "Year" column to Date
     justiceName: d.justiceName,
     justiceID: +d.justice,
-    vote: +d.direction // convert "Length" column to number
+    vote: +d.direction // convert "direction" column to number
   };
 }, function(error, rows) {
   
@@ -147,7 +147,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     .range([0, gridWidth]),
       
       yScale = d3.scale.linear()
-    .domain([startCase, numCases])//startCase+boxesInView])
+    .domain([0, numCases-1])//startCase+boxesInView])
     .range([0, gridHeight]);
 
   yScale.domain([startCase, boxesInView]);
@@ -313,20 +313,49 @@ d3.csv("data/scd_since2000.csv", function(d) {
       //cell.append("rect").attr("width",columnWidth-26).attr("height",rowHeight-8)
       cell.append("circle").attr("cx",columnWidth/2).attr("cy",rowHeight/2).attr("r",(rowHeight-8)/2)
         .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:darkred;" } else if (d.values[j].vote == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
-      //cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.values[j].justiceName; });
+      //cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.num; });
     }
   });
   
+  var scrollMultiplier = -0.01255;
+  var scrollY = 1000;
+  
+  mainChart.on("mousewheel",function() { 
+    //console.log("mousewheel");
+    //console.log(d3.event); 
+    
+    // set current scroll location and update y axis
+    scrollY = Math.min(Math.max(0,scrollY + d3.event.wheelDeltaY*scrollMultiplier),yMax);
+    yScale.domain([scrollY, scrollY+boxesInView]);
+    svgContainer.select(".y.axis").call(yAxis);
+    //console.log(scrollY);
+    //console.log(yScale(-scrollY));
+    
+    // update chart
+    mainChart.attr("transform","translate(" + scrollWidth + "," + (-scrollY*rowHeight+headerHeight) + ")");
+    
+    // update brush
+    viewport.extent(yScale.domain());
+    scrollBrush.select('.viewport').call(viewport);
+    
+    // update labels      
+    var bp = 0;
+    while (breakpoints[bp] <= yScale.domain()[0]) { bp++; }
+    applyLabels(bp);
+    
+  }); 
+  
   // add scrolling behavior
-  var zoom = d3.behavior.zoom()
+  /*var zoom = d3.behavior.zoom()
     .y(yScale)
+    .scaleExtent([0.2,1])
     .on('zoom',function() {
       var y = Math.min(Math.max(-yMax,zoom.translate()[1]),0);
-      zoom.scale(1);
+      //zoom.scale(1);
       zoom.translate([0, y]);
       //console.log(y);
       svgContainer.select(".y.axis").call(yAxis);
-      mainChart.attr("transform","translate(" + scrollWidth + "," + (y+headerHeight) + ")");
+      mainChart.attr("transform","translate(" + scrollWidth + "," + (y+headerHeight) + ")scale("+zoom.scale()+")");
       
       //zoom.center([0,-y]);
       //console.log(zoom.center());
@@ -339,7 +368,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
       scrollBrush.select('.viewport').call(viewport);
       
       applyLabels(bp);
-    });
+    });*/
 
   
   // setup function for applying labels
@@ -352,7 +381,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     if (breakpoints[breakpoint] <= yScale.domain()[1]) {
       var addedJustice = justiceAdditionsByBreakpoint[breakpoint];
       sideLabel.text(justiceDataMap[addedJustice][0])
-        .attr("transform","translate("+(gridWidth+10)+","+(-zoom.translate()[1]+yScale(breakpoints[breakpoint]+0.5)+5)+")");
+        .attr("transform","translate("+(gridWidth+10)+","+((breakpoints[breakpoint]+0.5)*rowHeight+5)+")");
     } else {
       sideLabel.text("");
     }
@@ -371,10 +400,10 @@ d3.csv("data/scd_since2000.csv", function(d) {
 
   mainChart.append('path')
       .attr('class', 'overlay')
-      .attr('d', overlay(nestedByCaseId))
-      .call(zoom);
+      .attr('d', overlay(nestedByCaseId));
+      //.call(zoom);
 
-  svgContainer.call(zoom);
+  //svgContainer.call(zoom);
 
   
   
