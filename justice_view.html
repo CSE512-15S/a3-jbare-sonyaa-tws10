@@ -131,7 +131,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     var controlValue = d3.select('input[name="justiceViewType"]:checked').node().value;
       d3.selectAll('input[name="justiceViewType"]')
               .on("click", function () {
-                  showJusticeView(+d3.select("body").select("svg.justiceView").attr("justiceId"))
+                  showJusticeView(justiceId);
               });
     var runningTotalData = computeRunningTotal(justiceId);
 
@@ -247,11 +247,14 @@ d3.csv("data/scd_since2000.csv", function(d) {
       d3.select("body").append("div")
               .text(justiceDataMap[justice_id][0])
               .on("click", function () {
+              var controlNames = ["Liberal/conservative", "Majority/minority"];
+              var values = ["direction", "majority"];
+              var curValue = values[0];
+              if (d3.select('input[name="justiceViewType"]:checked').node() !== null) {
+                  curValue = d3.select('input[name="justiceViewType"]:checked').node().value;
+              }
               d3.select("form.justiceViewType").remove();
               var form = d3.select("body").append("form").attr("class", "justiceViewType");
-              var controlNames = ["Liberal/conservative", "Majority/minority"];
-              var defaultIdx = 0;
-              var values = ["direction", "majority"];
               var labels = form.selectAll("label")
                       .data(controlNames)
                       .enter()
@@ -263,7 +266,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
                           name: "justiceViewType",
                           value: function(d, i) {return values[i];}
                       })
-                      .property("checked", function(d, i) {return i===defaultIdx;});
+                      .property("checked", function(d, i) {return values[i]===curValue;});
                 showJusticeView(justice_id)
               });
     }(j));
