@@ -61,6 +61,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     justiceName: d.justiceName,
     justiceID: +d.justice,
     vote: +d.direction,
+    decision: +d.decisionDirection,
     majority: +d.majority
   };
 }, function(error, rows) {
@@ -103,18 +104,24 @@ d3.csv("data/scd_since2000.csv", function(d) {
     var dates = [];
     var directionTotal = 0;
     var majorityTotal = 0;
+    var decisionTotal = 0;
     for (i = firstCase; i <= lastCase; i++) {
       for (var j = 0; j < nestedByCaseId[i].values.length; j++) {
         var justice = nestedByCaseId[i].values[j].justiceID;
         if (justice === justiceId) {
           directionTotal += (nestedByCaseId[i].values[j].vote === 2 ? 1 : -1);
           majorityTotal += (nestedByCaseId[i].values[j].majority === 2 ? 1 : -1);
+          decisionTotal += (nestedByCaseId[i].values[j].decision === 2 ? 1 : -1);
+          if (nestedByCaseId[i].values[j].decision === 3) {
+            console.log("unspecifiable " + j);
+          }
 //          var datum;
 //          datum.date = nestedByCaseId[i].values[j].decisionDate;
 //          datum.total = total;
           data.push({"date": parseDate(nestedByCaseId[i].values[j].decisionDate),
                 "direction_total": directionTotal,
-                "majority_total": majorityTotal});
+                "majority_total": majorityTotal,
+                "decision_total": decisionTotal});
         }
       }
     }
@@ -126,7 +133,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     d3.select("h3").text(justiceDataMap[justiceId][0]);
     var controlValue = d3.select('input[name="justiceViewType"]:checked').node().value;
     var runningTotalData = computeRunningTotal(justiceId);
-    console.log(runningTotalData)
+    console.log(runningTotalData);
 
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
             width = 960 - margin.left - margin.right,
@@ -146,12 +153,30 @@ d3.csv("data/scd_since2000.csv", function(d) {
             .scale(y)
             .orient("left");
 
-    var line = d3.svg.line()
-            .x(function(d) { return x(d.date); })
-            .y(function(d) { return y(controlValue === "direction" ? d.direction_total : d.majority_total); });
-
+    var line1;
+    var line2 = null;
     x.domain(d3.extent(runningTotalData, function(d) { return d.date; }));
-    y.domain(d3.extent(runningTotalData, function(d) { return controlValue === "direction" ? d.direction_total : d.majority_total; }));
+    if (controlValue === "direction") {
+      y.domain([d3.min(runningTotalData, function(d) { return Math.min(d.direction_total, d.decision_total); }),
+                d3.max(runningTotalData, function(d) { return Math.max(d.direction_total, d.decision_total); })]);
+      line1 = d3.svg.line()
+              .x(function(d) { return x(d.date); })
+              .y(function(d) { return y(d.direction_total); });
+      line2 = d3.svg.line()
+              .x(function(d) { return x(d.date); })
+              .y(function(d) { return y(d.decision_total); });
+
+    } else {
+//      y.domain(d3.extent(runningTotalData, function(d) { return d.majority_total; }));
+      y.domain([0, runningTotalData.length]);
+      line1 = d3.svg.line()
+              .x(function(d) { return x(d.date); })
+              .y(function(d) { return y(d.majority_total); });
+      line2 = d3.svg.line()
+              .x(function(d) { return x(d.date); })
+              .y(function(d,i) { return y(i); });
+
+    }
 
 //    var svg = d3.select("#justice-chart");
 //    svg.selectAll("*").remove();
@@ -179,7 +204,12 @@ d3.csv("data/scd_since2000.csv", function(d) {
     svg.append("path")
             .datum(runningTotalData)
             .attr("class", "line")
-            .attr("d", line);
+            .attr("d", line1);
+    svg.append("path")
+            .datum(runningTotalData)
+            .attr("class", "line")
+            .style("stroke", "grey")
+            .attr("d", line2);
   };
 
   for (j = 0; j < activeJustices.size(); ++j) {
