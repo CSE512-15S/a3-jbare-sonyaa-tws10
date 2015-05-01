@@ -28,9 +28,11 @@
 
       .line {
         fill: none;
-        stroke: steelblue;
-        stroke-width: 1.5px;
+        /*stroke: steelblue;*/
+          stroke: url(#line-gradient);
+          stroke-width: 1.5px;
       }
+
     </style>
   </head>
   <body>
@@ -111,13 +113,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
         if (justice === justiceId) {
           directionTotal += (nestedByCaseId[i].values[j].vote === 2 ? 1 : -1);
           majorityTotal += (nestedByCaseId[i].values[j].majority === 2 ? 1 : -1);
-          decisionTotal += (nestedByCaseId[i].values[j].decision === 2 ? 1 : -1);
-          if (nestedByCaseId[i].values[j].decision === 3) {
-            console.log("unspecifiable " + j);
+          if (nestedByCaseId[i].values[j].decision !== 3) {
+              decisionTotal += (nestedByCaseId[i].values[j].decision === 2 ? 1 : -1);
           }
-//          var datum;
-//          datum.date = nestedByCaseId[i].values[j].decisionDate;
-//          datum.total = total;
           data.push({"date": parseDate(nestedByCaseId[i].values[j].decisionDate),
                 "direction_total": directionTotal,
                 "majority_total": majorityTotal,
@@ -133,11 +131,10 @@ d3.csv("data/scd_since2000.csv", function(d) {
     d3.select("h3").text(justiceDataMap[justiceId][0]);
     var controlValue = d3.select('input[name="justiceViewType"]:checked').node().value;
     var runningTotalData = computeRunningTotal(justiceId);
-    console.log(runningTotalData);
 
-    var margin = {top: 20, right: 20, bottom: 30, left: 50},
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+    var margin = {top: 30, right: 20, bottom: 30, left: 75},
+            width = 650 - margin.left - margin.right,
+            height = 350 - margin.top - margin.bottom;
 
     var x = d3.time.scale()
             .range([0, width]);
@@ -147,18 +144,22 @@ d3.csv("data/scd_since2000.csv", function(d) {
 
     var xAxis = d3.svg.axis()
             .scale(x)
-            .orient("bottom");
+            .orient("bottom")
+            .ticks(5)
+            .tickFormat(d3.time.format("%Y"));
 
     var yAxis = d3.svg.axis()
             .scale(y)
             .orient("left");
 
+    var yMin = d3.min(runningTotalData, function(d) { return controlValue === "direction" ? Math.min(d.direction_total, d.decision_total) : Math.min(d.majority_total, d.decision_total); });
+    var yMax = controlValue === "direction" ? d3.max(runningTotalData, function(d) { return Math.max(d.direction_total, d.decision_total); }) : runningTotalData.length;
+    x.domain(d3.extent(runningTotalData, function(d) { return d.date; }));
+    y.domain([yMin, yMax]);
+
     var line1;
     var line2 = null;
-    x.domain(d3.extent(runningTotalData, function(d) { return d.date; }));
     if (controlValue === "direction") {
-      y.domain([d3.min(runningTotalData, function(d) { return Math.min(d.direction_total, d.decision_total); }),
-                d3.max(runningTotalData, function(d) { return Math.max(d.direction_total, d.decision_total); })]);
       line1 = d3.svg.line()
               .x(function(d) { return x(d.date); })
               .y(function(d) { return y(d.direction_total); });
@@ -167,8 +168,6 @@ d3.csv("data/scd_since2000.csv", function(d) {
               .y(function(d) { return y(d.decision_total); });
 
     } else {
-//      y.domain(d3.extent(runningTotalData, function(d) { return d.majority_total; }));
-      y.domain([0, runningTotalData.length]);
       line1 = d3.svg.line()
               .x(function(d) { return x(d.date); })
               .y(function(d) { return y(d.majority_total); });
@@ -178,8 +177,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
 
     }
 
-//    var svg = d3.select("#justice-chart");
-//    svg.selectAll("*").remove();
+
     d3.select("body").selectAll("svg").remove();
     var svg = d3.select("body").append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -196,20 +194,46 @@ d3.csv("data/scd_since2000.csv", function(d) {
             .call(yAxis)
             .append("text")
             .attr("transform", "rotate(-90)")
-            .attr("y", 6)
+            .attr("y", -65)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .text("Votes");
+            .text(controlValue === "direction" ? "Liberal votes running total" : "Majority votes running total");
 
-    svg.append("path")
+      var zeroPercent = Math.abs(yMin/(yMax - yMin));
+      svg.append("linearGradient")
+              .attr("id", "line-gradient")
+              .attr("gradientUnits", "userSpaceOnUse")
+              .attr("x1", 0).attr("y1", y(yMin))
+              .attr("x2", 0).attr("y2", y(yMax))
+              .selectAll("stop")
+              .data([
+                  {offset: "0%", color: "darkred"},
+                  {offset: zeroPercent, color: "darkred"},
+                  {offset: zeroPercent, color: "steelblue"},
+                  {offset: "100%", color: "steelblue"}
+              ])
+              .enter().append("stop")
+              .attr("offset", function(d) { return d.offset; })
+              .attr("stop-color", function(d) { return d.color; });
+
+
+      svg.append("path")
             .datum(runningTotalData)
             .attr("class", "line")
+//          .stroke: url(#line-gradient);*/
             .attr("d", line1);
     svg.append("path")
             .datum(runningTotalData)
             .attr("class", "line")
             .style("stroke", "grey")
             .attr("d", line2);
+
+      svg.append("text")
+              .attr("x", (width / 2))
+              .attr("y", 0 - (margin.top / 2))
+              .attr("text-anchor", "middle")
+              .style("font-size", "16px")
+              .text(justiceDataMap[justiceId][0]);
   };
 
   for (j = 0; j < activeJustices.size(); ++j) {
