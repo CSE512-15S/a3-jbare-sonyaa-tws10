@@ -325,10 +325,10 @@ d3.csv("data/scd_since2000.csv", function(d) {
     //console.log(d3.event); 
     
     // set current scroll location and update y axis
-    scrollY = Math.min(Math.max(0,scrollY + d3.event.wheelDeltaY*scrollMultiplier),yMax);
+    scrollY = Math.min(Math.max(0,scrollY + d3.event.wheelDeltaY*scrollMultiplier),numCases-boxesInView);
     yScale.domain([scrollY, scrollY+boxesInView]);
     svgContainer.select(".y.axis").call(yAxis);
-    //console.log(scrollY);
+    console.log(scrollY);
     //console.log(yScale(-scrollY));
     
     // update chart
