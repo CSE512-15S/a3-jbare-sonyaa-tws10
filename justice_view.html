@@ -39,7 +39,6 @@
   
     <h1>Supreme Court Jukebox</h1>
 
-    <h3>Current justice</h3>
     <form action="">
       <input type="radio" name="justiceViewType" value="direction" checked>Liberal/Conservative<br>
       <input type="radio" name="justiceViewType" value="majority">Majority/Minority
@@ -178,8 +177,10 @@ d3.csv("data/scd_since2000.csv", function(d) {
     }
 
 
-    d3.select("body").selectAll("svg").remove();
+    d3.select("body").selectAll("svg.justiceView").remove();
     var svg = d3.select("body").append("svg")
+            .attr("class", "justiceView")
+            .attr("justiceId", justiceId)
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
             .append("g")
@@ -246,6 +247,11 @@ d3.csv("data/scd_since2000.csv", function(d) {
               });
     }(j));
   }
+
+    d3.selectAll('input[name="justiceViewType"]')
+            .on("click", function () {
+                showJusticeView(+d3.select("body").select("svg.justiceView").attr("justiceId"))
+            });
 
 
   /////////////////////////////////////
