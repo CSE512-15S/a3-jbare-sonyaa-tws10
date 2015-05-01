@@ -404,41 +404,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
           var justiceID = activeJusticesByBreakpoint[breakpoint][lockedInIndex];
           header.select(".label"+i).text(justiceDataMap[justiceID][0])
                   .on("click", function () {
-                      var controlNames = ["Liberal/conservative", "Majority/minority"];
-                      var values = ["direction", "majority"];
-                      var curValue = values[0];
-                      if (d3.select('input[name="justiceViewType"]:checked').node() !== null) {
-                          curValue = d3.select('input[name="justiceViewType"]:checked').node().value;
-                      }
-                      d3.select("form.justiceViewType").remove();
-                      var form = d3.select("body").append("form").attr("class", "justiceViewType");
-                      var labelEnter = form.selectAll("span")
-                              .data(controlNames)
-                              .enter().append("div");
-
-                      labelEnter.append("input")
-                              .attr({
-                                  type: "radio",
-                                  name: "justiceViewType",
-                                  value: function(d, i) {return values[i];}
-                              })
-                              .property("checked", function(d, i) {return values[i]===curValue;});
-
-                      labelEnter.append("label").text(function(d) {return d;});
-
-//                      var labels = form.selectAll("label")
-//                              .data(controlNames)
-//                              .enter()
-//                              .append("label")
-//                              .text(function(d) {return d;})
-//                              .insert("input")
-//                              .attr({
-//                                  type: "radio",
-//                                  name: "justiceViewType",
-//                                  value: function(d, i) {return values[i];}
-//                              })
-//                              .property("checked", function(d, i) {return values[i]===curValue;});
-                      showJusticeView(+justiceID)
+                      showJusticeViewAndControls(justiceID);
                   });
         }(i));
     }
@@ -446,7 +412,10 @@ d3.csv("data/scd_since2000.csv", function(d) {
     if (breakpoints[breakpoint] <= yScale.domain()[1]) {
       var addedJustice = justiceAdditionsByBreakpoint[breakpoint];
       sideLabel.text(justiceDataMap[addedJustice][0])
-        .attr("transform","translate("+(gridWidth+10)+","+((breakpoints[breakpoint]+0.5)*rowHeight+5)+")");
+        .attr("transform","translate("+(gridWidth+10)+","+((breakpoints[breakpoint]+0.5)*rowHeight+5)+")")
+        .on("click", function () {
+            showJusticeViewAndControls(addedJustice);
+        });
     } else {
       sideLabel.text("");
     }
@@ -469,8 +438,6 @@ d3.csv("data/scd_since2000.csv", function(d) {
       //.call(zoom);
 
   //svgContainer.call(zoom);
-
-
 
     var computeRunningTotal = function(justiceId) {
         var parseDate = d3.time.format("%m/%-d/%Y").parse;
@@ -501,8 +468,31 @@ d3.csv("data/scd_since2000.csv", function(d) {
         return data;
     };
 
+    var showJusticeViewAndControls = function(justiceID) {
+        var controlNames = ["Liberal/conservative", "Majority/minority"];
+        var values = ["direction", "majority"];
+        var curValue = values[0];
+        if (d3.select('input[name="justiceViewType"]:checked').node() !== null) {
+            curValue = d3.select('input[name="justiceViewType"]:checked').node().value;
+        }
+        d3.select("form.justiceViewType").remove();
+        var form = d3.select("body").append("form").attr("class", "justiceViewType");
+        var labelEnter = form.selectAll("span")
+                .data(controlNames)
+                .enter().append("div");
+        labelEnter.append("input")
+                .attr({
+                    type: "radio",
+                    name: "justiceViewType",
+                    value: function(d, i) {return values[i];}
+                })
+                .property("checked", function(d, i) {return values[i]===curValue;});
+
+        labelEnter.append("label").text(function(d) {return d;});
+        showJusticeView(+justiceID);
+    };
+
     var showJusticeView = function(justiceId) {
-        d3.select("h3").text(justiceDataMap[justiceId][0]);
         var controlValue = d3.select('input[name="justiceViewType"]:checked').node().value;
         d3.selectAll('input[name="justiceViewType"]')
                 .on("click", function () {
