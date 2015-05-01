@@ -45,6 +45,10 @@
           stroke: url(#line-gradient);
           stroke-width: 1.5px;
       }
+
+      .clickable {
+          cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -278,6 +282,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   
   // set up side label
   var sideLabel = mainChart.append("text")
+    .attr("class", "clickable")
     .attr("transform","translate("+gridWidth+",0)")
     .text("");
                
@@ -402,7 +407,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
     for (var i=0; i<9; i++) {
         (function( lockedInIndex ) {
           var justiceID = activeJusticesByBreakpoint[breakpoint][lockedInIndex];
-          header.select(".label"+i).text(justiceDataMap[justiceID][0])
+          header.select(".label"+i)
+                  .attr("class", "clickable")
+                  .text(justiceDataMap[justiceID][0])
                   .on("click", function () {
                       showJusticeViewAndControls(justiceID);
                   });
