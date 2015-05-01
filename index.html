@@ -164,7 +164,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
                       .attr("width", scrollWidth)
                       .attr("height", gridHeight);
 
-  var brushXScale = d3.time.scale()
+  var brushXScale = d3.time.scale() // ???
           .domain([0, 9])
           .range([0, scrollWidth]),
       brushYScale = d3.scale.linear()
@@ -328,9 +328,15 @@ d3.csv("data/scd_since2000.csv", function(d) {
       svgContainer.select(".y.axis").call(yAxis);
       mainChart.attr("transform","translate(" + scrollWidth + "," + (y+headerHeight) + ")");
       
+      //zoom.center([0,-y]);
+      //console.log(zoom.center());
+      
       var bp = 0;
       while (breakpoints[bp] <= yScale.domain()[0]) { bp++; }
       //console.log(yScale.domain()[1] + " -> " + bp);
+      
+      viewport.extent(yScale.domain());
+      scrollBrush.select('.viewport').call(viewport);
       
       applyLabels(bp);
     });
