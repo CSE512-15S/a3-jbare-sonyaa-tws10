@@ -87,6 +87,8 @@ d3.csv("data/scd_since2000.csv", function(d) {
   // compute first and last active cases for all justices
   var firstCases = {};
   var lastCases = {};
+  var libTotal = 0;
+  var consTotal = 0;
   for (var i = 0; i < numCases; i ++ ) {
     for (var j = 0; j < nestedByCaseId[i].values.length; j++) {
       var justice = nestedByCaseId[i].values[j].justiceID;
@@ -94,8 +96,25 @@ d3.csv("data/scd_since2000.csv", function(d) {
         firstCases[justice] = i;
       }
       lastCases[justice] = i;
+      if (nestedByCaseId[i].values[j].decision == 1) {
+        consTotal = consTotal + 1;
+      } else if (nestedByCaseId[i].values[j].decision == 2) {
+        libTotal = libTotal + 1;
+      }
     }
     nestedByCaseId[i].num = i;
+    if (libTotal + consTotal < 5) {
+      nestedByCaseId[i].overallDecision = 3;
+    } else if (libTotal > consTotal) {
+      nestedByCaseId[i].overallDecision = 2;
+    } else if (consTotal > libTotal) {
+      nestedByCaseId[i].overallDecision = 1;
+    } else {
+      nestedByCaseId[i].overallDecision = 3;
+    }
+
+    libTotal = 0;
+    consTotal = 0;
 
   }
   //console.log(firstCases);
@@ -152,7 +171,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   
   // set up size variables
   var rowHeight = 32;
-  var boxesInView = 10;
+  var boxesInView = 13;
   var yMax = rowHeight*(numCases-boxesInView);
   
   var columnWidth = 50;
@@ -337,6 +356,13 @@ d3.csv("data/scd_since2000.csv", function(d) {
     var bp = 0;
     while (breakpoints[bp] <= i) { bp++; }
     //console.log(i + " -> " + bp);
+
+    scrollBrush.append("rect")
+        .attr("transform", "translate(" + scrollWidth/4 + ", " + (brushYScale(d.num)) + ")" )
+        .attr("width", scrollWidth/2)
+        .attr("height", 1)
+        .attr("style", function() { if (d.overallDecision == 1) { return "fill:darkred;" } else if (d.overallDecision == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
+
     for (j=0; j < d.values.length; j++) {
       var justice = d.values[j].justiceID;
       var column = justiceColumnsByBreakpoint[bp][justice];
@@ -350,7 +376,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   });
   
   var scrollMultiplier = -0.01255;
-  var scrollY = 1000;
+  var scrollY = 0;
   
   mainChart.on("mousewheel",function() { 
     //console.log("mousewheel");
