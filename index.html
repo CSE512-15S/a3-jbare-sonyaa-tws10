@@ -272,7 +272,8 @@ d3.csv("data/scd_since2000.csv", function(d) {
   for (var i=0; i<9; i++) {
     header.append("text")
       .attr("transform","translate("+(columnWidth*(i+0.5))+","+(headerHeight-5)+")rotate("+labelAngle+")")
-      .attr("class","label"+i);
+      .attr("class","label"+i)
+      .style("cursor: pointer;");
       //.text("justice " + i);
   }
   
@@ -403,6 +404,13 @@ d3.csv("data/scd_since2000.csv", function(d) {
         (function( lockedInIndex ) {
           var justiceID = activeJusticesByBreakpoint[breakpoint][lockedInIndex];
           header.select(".label"+i).text(justiceDataMap[justiceID][0])
+                  .on("mouseover",function() {
+                    console.log(justiceID + " mouseover");
+                    d3.select(this).attr("style","font-weight: bold; cursor: pointer; ");
+                  })
+                  .on("mouseout",function() {
+                    d3.select(this).attr("style","font-weight: normal; cursor: pointer;");
+                  })
                   .on("click", function () {
                       var controlNames = ["Liberal/conservative", "Majority/minority"];
                       var values = ["direction", "majority"];
