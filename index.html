@@ -411,19 +411,18 @@ d3.csv("data/scd_since2000.csv", function(d) {
     })
     .on("mousedown",function() {
       dragging = true;
-      console.log("mouse down!");
-      console.log(d3.event.y);
+      //console.log("mouse down!");
       lastMouseY = d3.event.y;
     })
     .on("mousemove",function() {
       if (dragging) {
-        console.log("mousing "+(d3.event.y - lastMouseY));
+        //console.log("mousing "+(d3.event.y - lastMouseY));
         updateScrollY(scrollY - (d3.event.y - lastMouseY)/rowHeight);
         lastMouseY = d3.event.y;
       }
     })
     .on("mouseup",function() {
-      console.log("mouse up!");
+      //console.log("mouse up!");
       dragging = false;
     })
     .on("mouseout",function() {
@@ -464,8 +463,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
     for (var i=0; i<9; i++) {
         (function( lockedInIndex ) {
           var justiceID = activeJusticesByBreakpoint[breakpoint][lockedInIndex];
-          header.select(".label"+i)
-            .attr("class", "clickable")
+          //console.log("justice " + lockedInIndex + " id: " + justiceID + "("+justiceDataMap[justiceID][0]+")");
+          header.select(".label"+lockedInIndex)
+            //.attr("class", "clickable")
             .text(justiceDataMap[justiceID][0])
                   .on("mouseover",function() {
                     console.log(justiceID + " mouseover");
@@ -478,6 +478,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
                   .on("click", function () {
                       showJusticeViewAndControls(justiceID);
                   });
+          //console.log(header.select(".label"+lockedInIndex).text());
         }(i));
     }
     
