@@ -65,7 +65,7 @@ d3.json("justices.json", function(error, json) {
     if (error) return console.warn(error);
     for (var k = 0; k < json.justices.length; k++) {
         var elem = json.justices[k];
-        justiceDataMap[+elem.id] = [elem.name, elem.link];
+        justiceDataMap[+elem.id] = [elem.name, elem.link, elem.president];
     }
 d3.csv("data/scd_since2000.csv", function(d) {
   return {
