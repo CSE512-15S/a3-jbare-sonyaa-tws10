@@ -2,186 +2,223 @@
 	{
 		"id": 78,
 		"name": "Hugo Black",
-		"link": "http://en.wikipedia.org/wiki/Hugo_Black"
+		"link": "http://en.wikipedia.org/wiki/Hugo_Black",
+		"president": "Roosevelt, F."
 	},
 	{
 		"id": 79,
 		"name": "Stanley Forman Reed",
-		"link": "http://en.wikipedia.org/wiki/Stanley_Forman_Reed"
+		"link": "http://en.wikipedia.org/wiki/Stanley_Forman_Reed",
+		"president": "Roosevelt, F."
 	},
 	{
 		"id": 80,
 		"name": "Felix Frankfurter",
-		"link": "http://en.wikipedia.org/wiki/Felix_Frankfurter"
+		"link": "http://en.wikipedia.org/wiki/Felix_Frankfurter",
+		"president": "Roosevelt, F."
 	},
 	{
 		"id": 81,
 		"name": "William O. Douglas",
-		"link": "http://en.wikipedia.org/wiki/William_O._Douglas"
+		"link": "http://en.wikipedia.org/wiki/William_O._Douglas",
+		"president": "Roosevelt, F."
 	},
 	{
 		"id": 82,
 		"name": "Frank Murphy",
-		"link": "http://en.wikipedia.org/wiki/Frank_Murphy"
+		"link": "http://en.wikipedia.org/wiki/Frank_Murphy",
+		"president": "Roosevelt, F."
 	},
 	{
 		"id": 83,
 		"name": "James F. Byrnes",
-		"link": "http://en.wikipedia.org/wiki/James_F._Byrnes"
+		"link": "http://en.wikipedia.org/wiki/James_F._Byrnes",
+		"president": "Roosevelt, F."
 	},
 	{
 		"id": 84,
 		"name": "Robert H. Jackson",
-		"link": "http://en.wikipedia.org/wiki/Robert_H._Jackson"
+		"link": "http://en.wikipedia.org/wiki/Robert_H._Jackson",
+		"president": "Roosevelt, F."
 	},
 	{
 		"id": 85,
 		"name": "Wiley Blount Rutledge",
-		"link": "http://en.wikipedia.org/wiki/Wiley_Blount_Rutledge"
+		"link": "http://en.wikipedia.org/wiki/Wiley_Blount_Rutledge",
+		"president": "Roosevelt, F."
 	},
 	{
 		"id": 86,
 		"name": "Harold Hitz Burton",
-		"link": "http://en.wikipedia.org/wiki/Harold_Hitz_Burton"
+		"link": "http://en.wikipedia.org/wiki/Harold_Hitz_Burton",
+		"president": "Truman"
 	},
 	{
 		"id": 87,
 		"name": "Fred M. Vinson",
-		"link": "http://en.wikipedia.org/wiki/Fred_M._Vinson"
+		"link": "http://en.wikipedia.org/wiki/Fred_M._Vinson",
+		"president": "Truman"
 	},
 	{
 		"id": 88,
 		"name": "Tom C. Clark",
-		"link": "http://en.wikipedia.org/wiki/Tom_C._Clark"
+		"link": "http://en.wikipedia.org/wiki/Tom_C._Clark",
+		"president": "Truman"
 	},
 	{
 		"id": 89,
 		"name": "Sherman Minton",
-		"link": "http://en.wikipedia.org/wiki/Sherman_Minton"
+		"link": "http://en.wikipedia.org/wiki/Sherman_Minton",
+		"president": "Truman"
 	},
 	{
 		"id": 90,
 		"name": "Earl Warren",
-		"link": "http://en.wikipedia.org/wiki/Earl_Warren"
+		"link": "http://en.wikipedia.org/wiki/Earl_Warren",
+		"president": "Eisenhower"
 	},
 	{
 		"id": 91,
 		"name": "John Marshall Harlan II",
-		"link": "http://en.wikipedia.org/wiki/John_Marshall_Harlan_II"
+		"link": "http://en.wikipedia.org/wiki/John_Marshall_Harlan_II",
+		"president": "Eisenhower"
 	},
 	{
 		"id": 92,
 		"name": "William J. Brennan, Jr.",
-		"link": "http://en.wikipedia.org/wiki/William_J._Brennan,_Jr."
+		"link": "http://en.wikipedia.org/wiki/William_J._Brennan,_Jr.",
+		"president": "Eisenhower"
 	},
 	{
 		"id": 93,
 		"name": "Charles Evans Whittaker",
-		"link": "http://en.wikipedia.org/wiki/Charles_Evans_Whittaker"
+		"link": "http://en.wikipedia.org/wiki/Charles_Evans_Whittaker",
+		"president": "Eisenhower"
 	},
 	{
 		"id": 94,
 		"name": "Potter Stewart",
-		"link": "http://en.wikipedia.org/wiki/Potter_Stewart"
+		"link": "http://en.wikipedia.org/wiki/Potter_Stewart",
+		"president": "Eisenhower"
 	},
 	{
 		"id": 95,
 		"name": "Byron White",
-		"link": "http://en.wikipedia.org/wiki/Byron_White"
+		"link": "http://en.wikipedia.org/wiki/Byron_White",
+		"president": "Kennedy"
 	},
 	{
 		"id": 96,
 		"name": "Arthur Goldberg",
-		"link": "http://en.wikipedia.org/wiki/Arthur_Goldberg"
+		"link": "http://en.wikipedia.org/wiki/Arthur_Goldberg",
+		"president": "Kennedy"
 	},
 	{
 		"id": 97,
 		"name": "Abe Fortas",
-		"link": "http://en.wikipedia.org/wiki/Abe_Fortas"
+		"link": "http://en.wikipedia.org/wiki/Abe_Fortas",
+		"president": "Johnson, L."
 	},
 	{
 		"id": 98,
 		"name": "Thurgood Marshall",
-		"link": "http://en.wikipedia.org/wiki/Thurgood_Marshall"
+		"link": "http://en.wikipedia.org/wiki/Thurgood_Marshall",
+		"president": "Johnson, L."
 	},
 	{
 		"id": 99,
 		"name": "Warren E. Burger",
-		"link": "http://en.wikipedia.org/wiki/Warren_E._Burger"
+		"link": "http://en.wikipedia.org/wiki/Warren_E._Burger",
+		"president": "Nixon"
 	},
 	{
 		"id": 100,
 		"name": "Harry Blackmun",
-		"link": "http://en.wikipedia.org/wiki/Harry_Blackmun"
+		"link": "http://en.wikipedia.org/wiki/Harry_Blackmun",
+		"president": "Nixon"
 	},
 	{
 		"id": 101,
 		"name": "Lewis F. Powell, Jr.",
-		"link": "http://en.wikipedia.org/wiki/Lewis_F._Powell,_Jr."
+		"link": "http://en.wikipedia.org/wiki/Lewis_F._Powell,_Jr.",
+		"president": "Nixon"
 	},
 	{
 		"id": 102,
 		"name": "William Rehnquist",
-		"link": "http://en.wikipedia.org/wiki/William_Rehnquist"
+		"link": "http://en.wikipedia.org/wiki/William_Rehnquist",
+		"president": "Nixon/Reagan"
 	},
 	{
 		"id": 103,
 		"name": "John Paul Stevens",
-		"link": "http://en.wikipedia.org/wiki/John_Paul_Stevens"
+		"link": "http://en.wikipedia.org/wiki/John_Paul_Stevens",
+		"president": "Ford"
 	},
 	{
 		"id": 104,
 		"name": "Sandra Day O'Connor",
-		"link": "http://en.wikipedia.org/wiki/Sandra_Day_O%27Connor"
+		"link": "http://en.wikipedia.org/wiki/Sandra_Day_O%27Connor",
+		"president": "Reagan"
 	},
 	{
 		"id": 105,
 		"name": "Antonin Scalia",
-		"link": "http://en.wikipedia.org/wiki/Antonin_Scalia"
+		"link": "http://en.wikipedia.org/wiki/Antonin_Scalia",
+		"president": "Reagan"
 	},
 	{
 		"id": 106,
 		"name": "Anthony Kennedy",
-		"link": "http://en.wikipedia.org/wiki/Anthony_Kennedy"
+		"link": "http://en.wikipedia.org/wiki/Anthony_Kennedy",
+		"president": "Reagan"
 	},
 	{
 		"id": 107,
 		"name": "David Souter",
-		"link": "http://en.wikipedia.org/wiki/David_Souter"
+		"link": "http://en.wikipedia.org/wiki/David_Souter",
+		"president": "Bush, G. H. W."
 	},
 	{
 		"id": 108,
 		"name": "Clarence Thomas",
-		"link": "http://en.wikipedia.org/wiki/Clarence_Thomas"
+		"link": "http://en.wikipedia.org/wiki/Clarence_Thomas",
+		"president": "Bush, G. H. W."
 	},
 	{
 		"id": 109,
 		"name": "Ruth Bader Ginsburg",
-		"link": "http://en.wikipedia.org/wiki/Ruth_Bader_Ginsburg"
+		"link": "http://en.wikipedia.org/wiki/Ruth_Bader_Ginsburg",
+		"president": "Clinton"
 	},
 	{
 		"id": 110,
 		"name": "Stephen Breyer",
-		"link": "http://en.wikipedia.org/wiki/Stephen_Breyer"
+		"link": "http://en.wikipedia.org/wiki/Stephen_Breyer",
+		"president": "Clinton"
 	},
 	{
 		"id": 111,
 		"name": "John G. Roberts",
-		"link": "http://en.wikipedia.org/wiki/John_G._Roberts"
+		"link": "http://en.wikipedia.org/wiki/John_G._Roberts",
+		"president": "Bush, G. W."
 	},
 	{
 		"id": 112,
 		"name": "Samuel Alito",
-		"link": "http://en.wikipedia.org/wiki/Samuel_Alito"
+		"link": "http://en.wikipedia.org/wiki/Samuel_Alito",
+		"president": "Bush, G. W."
 	},
 	{
 		"id": 113,
 		"name": "Sonia Sotomayor",
-		"link": "http://en.wikipedia.org/wiki/Sonia_Sotomayor"
+		"link": "http://en.wikipedia.org/wiki/Sonia_Sotomayor",
+		"president": "Obama"
 	},
 	{
 		"id": 114,
 		"name": "Elena Kagan",
-		"link": "http://en.wikipedia.org/wiki/Elena_Kagan"
+		"link": "http://en.wikipedia.org/wiki/Elena_Kagan",
+		"president": "Obama"
 	}
 ]}
