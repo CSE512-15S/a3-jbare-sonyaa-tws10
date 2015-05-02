@@ -6,6 +6,11 @@
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="justices.js" charset="utf-8"></script>
     <style>
+      body {
+        -webkit-user-select: none; /* Chrome/Safari */        
+        -moz-user-select: none; /* Firefox */  
+        -ms-user-select: none;
+      }
       .chart div {
         font: 10px sans-serif;
         background-color: white;
@@ -377,18 +382,14 @@ d3.csv("data/scd_since2000.csv", function(d) {
   
   var scrollMultiplier = -0.01255;
   var scrollY = 0;
+  var dragging = false;
+  var lastMouseY;
   
-  mainChart.on("mousewheel",function() { 
-    //console.log("mousewheel");
-    //console.log(d3.event); 
-    
-    // set current scroll location and update y axis
-    scrollY = Math.min(Math.max(0,scrollY + d3.event.wheelDeltaY*scrollMultiplier),numCases-boxesInView);
+  function updateScrollY(newScrollY) {
+    scrollY = Math.min(Math.max(0,newScrollY),numCases-boxesInView);
     yScale.domain([scrollY, scrollY+boxesInView]);
     svgContainer.select(".y.axis").call(yAxis);
-    console.log(scrollY);
-    //console.log(yScale(-scrollY));
-    
+
     // update chart
     mainChart.attr("transform","translate(" + scrollWidth + "," + (-scrollY*rowHeight+headerHeight) + ")");
     
@@ -401,7 +402,36 @@ d3.csv("data/scd_since2000.csv", function(d) {
     while (breakpoints[bp] <= yScale.domain()[0]) { bp++; }
     applyLabels(bp);
     
-  }); 
+  }
+  
+  // set up mouse events for main chart
+  mainChart
+    .on("mousewheel",function() { 
+      updateScrollY(scrollY + d3.event.wheelDeltaY*scrollMultiplier);
+    })
+    .on("mousedown",function() {
+      dragging = true;
+      console.log("mouse down!");
+      console.log(d3.event.y);
+      lastMouseY = d3.event.y;
+    })
+    .on("mousemove",function() {
+      if (dragging) {
+        console.log("mousing "+(d3.event.y - lastMouseY));
+        updateScrollY(scrollY - (d3.event.y - lastMouseY)/rowHeight);
+        lastMouseY = d3.event.y;
+      }
+    })
+    .on("mouseup",function() {
+      console.log("mouse up!");
+      dragging = false;
+    })
+    .on("mouseout",function() {
+      if (dragging) {
+        updateScrollY(scrollY - (d3.event.y - lastMouseY)/rowHeight);
+        dragging = false;
+      }
+    });
   
   // add scrolling behavior
   /*var zoom = d3.behavior.zoom()
