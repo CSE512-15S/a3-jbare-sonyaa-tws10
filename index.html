@@ -275,7 +275,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
                       .attr("class", "scrollBrush")
                       .attr("transform", function(d) { return "translate(0," +headerHeight+")"; })
                       .attr("width", scrollWidth)
-                      .attr("height", gridHeight)
+                      .attr("height", gridHeight);
                       
   var brushXScale = d3.scale.linear() 
           .domain([-1, 1])
@@ -458,7 +458,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
     //viewport.extent(yScale.domain());
     //scrollBrush.select('.viewport').call(viewport);
     brush.attr("transform","translate(0,"+(gridHeight*((scrollY-boxesInView/2)/numCases))+")");
-    
+
+    updateJusticeViewSelection(scrollY);
+
     // update labels      
     var bp = 0;
     while (breakpoints[bp] <= yScale.domain()[0]) { bp++; }
@@ -786,6 +788,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
                 .attr("class", "justiceView")
                 .attr("justiceId", justiceId)
                 .attr("width", width + margin.left + margin.right)
+                .attr("graphWidth", width)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -870,7 +873,27 @@ d3.csv("data/scd_since2000.csv", function(d) {
 
 //        svg2.selectAll('g.x.axis g text').each(insertLineBreaks);
         svg2.selectAll('g.x.axis text').each(insertLineBreaks);
+
+
+      var selection = svg2.append("g")
+              .attr("class", "selection")
+              .attr("transform","translate(0,0)");
+      selection.append("rect")
+              .attr("width",5)
+              .attr("height",height)
+              .attr("style", "fill:gray; fill-opacity: 0.5;");
+      var length = lastCases[justiceId]-firstCases[justiceId];
+      selection.attr("transform", "translate(" + Math.max(0, (width * ((scrollY - firstCases[justiceId]) / runningTotalData.length))) + ",0)");
+
     };
+
+  var updateJusticeViewSelection = function(scrollY) {
+    if (!d3.select(".justiceView").empty()) {
+      var justiceId = +d3.select(".justiceView").attr("justiceId");
+      var width = +d3.select(".justiceView").attr("graphWidth");
+      d3.select(".selection").attr("transform", "translate(" + Math.max(0, (width * ((scrollY - firstCases[justiceId]) / (lastCases[justiceId] - firstCases[justiceId] - 1)))) + ",0)");
+    }
+  }
 
 });
 
