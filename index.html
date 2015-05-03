@@ -218,7 +218,10 @@ d3.csv("data/scd_since2000.csv", function(d) {
   var gridHeight = boxesInView*rowHeight;
     
   var scrollWidth = 100;
-  var sideLabelWidth = 200;
+  var sideLabelWidth = 125;
+
+  var justiceViewWidth = 650;
+  var justiceViewHeight = 400;
   
   var headerHeight = 150;
   
@@ -242,8 +245,16 @@ d3.csv("data/scd_since2000.csv", function(d) {
   // set up SVG
   var svg = d3.select("body").append("svg")
                                     .attr("class", "svg")
-                                    .attr("width", gridWidth + scrollWidth + sideLabelWidth)
+                                    .attr("width", gridWidth + scrollWidth + sideLabelWidth + justiceViewWidth)
                                     .attr("height", gridHeight + headerHeight);
+
+  var justiceViewTranslate = gridWidth + scrollWidth + sideLabelWidth;
+
+  var justiceViewSpace = svg.append("g")
+                      .attr("class", "justiceViewSpace")
+                      .attr("transform", "translate(" + justiceViewTranslate + "," + headerHeight +")" )
+                      .attr("width", justiceViewWidth)
+                      .attr("height", justiceViewHeight);
 
   var scrollBrush = svg.append("g")
                       .attr("class", "scrollBrush")
@@ -802,8 +813,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
         }
 
 
-        d3.select("body").selectAll("svg.justiceView").remove();
-        var svg2 = d3.select("body").append("svg")
+        d3.select("body").selectAll("g.justiceView").remove();
+        var svg2 = justiceViewSpace
+                .append("g")
                 .attr("class", "justiceView")
                 .attr("justiceId", justiceId)
                 .attr("width", width + margin.left + margin.right)
