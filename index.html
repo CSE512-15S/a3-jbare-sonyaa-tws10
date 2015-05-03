@@ -187,6 +187,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   var breakpoints = [];
   var activeJusticesByBreakpoint = [activeJustices.values()];
   var justiceAdditionsByBreakpoint = [];
+  var justiceRemovalsByBreakpoint = [];
   while (true) {
     var nextToLeave = activeJustices.values()[0];
     for (j = 1; j < activeJustices.size(); ++j) {
@@ -207,6 +208,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     breakpoints.push(lastCases[nextToLeave]+1);
     activeJusticesByBreakpoint.push(activeJustices.values());
     justiceAdditionsByBreakpoint.push(nextToArrive);
+    justiceRemovalsByBreakpoint.push(nextToLeave);
     //console.log("next to arrive: " + nextToArrive);
   }
   breakpoints.push(numCases);
@@ -482,9 +484,10 @@ d3.csv("data/scd_since2000.csv", function(d) {
     
     // update labels      
     var bp = 0;
-    while (breakpoints[bp] <= yScale.domain()[0]) { bp++; }
+    while (breakpoints[bp] <= (yScale.domain()[0]-1)) { bp++; }
     applyLabels(bp);
 
+    // update justice view
     updateJusticeViewSelection(scrollY);
     
   }
@@ -627,6 +630,8 @@ d3.csv("data/scd_since2000.csv", function(d) {
           //console.log("justice " + lockedInIndex + " id: " + justiceID + "("+justiceDataMap[justiceID][0]+")");
           header.select(".label"+lockedInIndex)
             //.attr("class", "clickable")
+            .style("opacity","1")
+            .attr("transform","translate("+(columnWidth*(lockedInIndex+0.5))+","+(headerHeight-5)+")rotate("+labelAngle+")")
             .text(justiceDataMap[justiceID][0])
                   .on("mouseover",function() {
                     //console.log(justiceID + " mouseover");
@@ -644,14 +649,32 @@ d3.csv("data/scd_since2000.csv", function(d) {
     }
     
     if (breakpoints[breakpoint] <= yScale.domain()[1]) {
+      console.log(scrollY + "," + breakpoints[breakpoint] + "," + yScale.domain()[1]);
       var addedJustice = justiceAdditionsByBreakpoint[breakpoint];
       sideLabel.text(justiceDataMap[addedJustice][0])
         .attr("transform","translate("+(gridWidth+10)+","+((breakpoints[breakpoint]+0.5)*rowHeight+5)+")")
         .on("click", function () {
             showJusticeViewAndControls(addedJustice);
         });
+      var t = scrollY - breakpoints[breakpoint];
+      if (t < 1 && t > 0) {
+        //console.log("transition w/ t=" + t);
+        var leavingJustice = justiceRemovalsByBreakpoint[breakpoint];
+        //console.log("leaving justice is " +justiceDataMap[leavingJustice][0] +" ("+justiceColumnsByBreakpoint[breakpoint][leavingJustice]+")");
+        header.select(".label"+justiceColumnsByBreakpoint[breakpoint][leavingJustice])
+           .style("opacity",1-t);
+        for (j = 1; j<9; j++) {
+          var justiceID = activeJusticesByBreakpoint[breakpoint][j];
+          if (justiceColumnsByBreakpoint[breakpoint+1][justiceID] !== j) {
+            console.log(justiceDataMap[justiceID][0] + "moving over");
+            header.select(".label"+j)
+              .attr("transform","translate("+(columnWidth*(j-t+0.5))+","+(headerHeight-5)+")rotate("+labelAngle+")");
+          }
+        }
+      }
     } else {
       sideLabel.text("");
+      console.log(breakpoints[breakpoint] + ", " + scrollY);
     }
   }
   
