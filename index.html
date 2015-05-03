@@ -54,7 +54,7 @@
       .clickable {
           cursor: pointer;
       }
-<<<<<<< HEAD
+
 
       .hoverRect:hover {
         opacity: 0.2;
@@ -552,7 +552,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
           .on("mouseout",function(d) {
             d3.select(".tooltip").style("display","none");
           })
-          .on("click",function(d) { window.location.href = "https://www.google.com/?gws_rd=ssl#q="+d.values[0].name; } );
+          .on("click",function(d) { window.open("https://www.google.com/?gws_rd=ssl#q="+d.values[0].name,"_blank"); } );
     }
   });
     
