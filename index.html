@@ -260,9 +260,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
                       .attr("class", "scrollBrush")
                       .attr("transform", function(d) { return "translate(0," +headerHeight+")"; })
                       .attr("width", scrollWidth)
-                      .attr("height", gridHeight);
-
-  var brushXScale = d3.scale.linear() // ???
+                      .attr("height", gridHeight)
+                      
+  var brushXScale = d3.scale.linear() 
           .domain([-1, 1])
           .range([0, scrollWidth]),
       brushYScale = d3.scale.linear()
@@ -289,37 +289,43 @@ d3.csv("data/scd_since2000.csv", function(d) {
           .style("stroke", "black")
           .attr("d", scrollLine);
 
-  var viewport = d3.svg.brush()
-      .y(brushYScale)
-      .on("brush", function () {
-          yScale.domain(viewport.empty() ? brushYScale.domain() : viewport.extent());
-          
-      });
-
-  scrollBrush.append("g")
-    .attr("class", "viewport")
-    .call(viewport)
-    .selectAll("rect")
-    .attr("height", 50)
-    .attr("width", scrollWidth);
-
-  viewport.on("brushend", function () {
-          updateZoomFromChart();
-      });
-
-  function updateZoomFromChart() {
-
-      zoom.y(yScale);
+  var brush = scrollBrush.append("g")
+      .attr("transform","translate(0,0)");
       
-      var fullDomain = numCases,
-          currentDomain = yScale.domain()[1] - yScale.domain()[0];
+  var brushing = false;
+  brush.append("rect")
+      .attr("width",scrollWidth)
+      .attr("height",5)
+      .attr("style", "fill:lightgray; fill-opacity: 0.5;");
+      
+  scrollBrush.append("rect")
+      .attr("width", scrollWidth)
+      .attr("height", gridHeight)
+      .attr("style", "fill-opacity: 0")
+      .on("mousedown",function() { 
+         var caseNum = (d3.event.clientY - svg[0][0].getBoundingClientRect().top - headerHeight)
+            / gridHeight * numCases; 
+          console.log(caseNum);
+          updateScrollY(caseNum);
+          brushing = true;
+      })
+      .on("mousemove",function() {
+        if (brushing) {
+          var caseNum = (d3.event.clientY - svg[0][0].getBoundingClientRect().top - headerHeight)
+            / gridHeight * numCases; 
+          console.log(caseNum);
+          updateScrollY(caseNum);
+        }
+      })
+      .on("mouseup",function() {
+        console.log("unclicked brush");
+        brushing = false;
+      })
+      .on("mouseout",function() {
+        brushing = false;
+      });
 
-      var minScale = currentDomain / fullDomain,
-          maxScale = minScale * 20;
-
-      zoom.scaleExtent([minScale, maxScale]);
-  }
-  
+ 
   var svgContainer = svg.append("g")
                         .attr("class", "svgContainer");
   
@@ -329,21 +335,11 @@ d3.csv("data/scd_since2000.csv", function(d) {
     .orient("left");
     //.ticks(8);
     
-  svgContainer.append("g")
+  /*svgContainer.append("g")
     .attr("class", "y axis") 
     .attr("transform", "translate(" + scrollWidth + "," + headerHeight + ")")
-    .call(yAxis);
-    
-
-  /*var svgScroller = svgContainer.append("rect")
-                                       .attr("width", scrollWidth)
-                                       .attr("height", gridHeight)
-                                       .attr("style", "fill:gray")
-                                       .append('g')
-                                       .attr('class', 'y axis')
-                                       .call(yAxis);&*/
-
-
+    .call(yAxis);*/
+   
   // set up grid
   var mainChart = svgContainer.append("g")
                               .attr("class", "mainChart")
@@ -427,61 +423,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   mainChart.append('path')
       .attr('class', 'overlay')
       .attr('d', overlay(nestedByCaseId));
-  
-
-  // fill grid      TODO: delete this                 
-  /*var row = mainChart.selectAll("g")
-    .data(nestedByCaseId).enter().append("g")
-    .attr("class", "row-g")
-    .attr("transform", function(d, i) { return "translate(0," + yScale(i) + ")"; });
-
-  row.each(function(d,i) {
-    //console.log(d);
-    var bp = 0;
-    while (breakpoints[bp] <= i) { bp++; }
-    //console.log(i + " -> " + bp);
-
-    scrollBrush.append("rect")
-        .attr("transform", "translate(" + scrollWidth/3 + ", " + (brushYScale(d.num)) + ")" )
-        .attr("width", scrollWidth/3)
-        .attr("height", 1)
-        .attr("style", function() { if (d.overallDecision == 1) { return "fill:darkred;" } else if (d.overallDecision == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
-
-    var text = "";
-    var rowHighlight = d3.select(this).append("rect")
-        .attr("width", gridWidth)
-        .attr("height", rowHeight)
-        .attr("class", "hoverRect")
-        .attr("style", function() { 
-          
-          if (d.overallDecision == 1) { 
-            text = text +  "fill:darkred;stroke:darkred;" 
-          } else if (d.overallDecision == 2) { 
-            text = text + "fill:steelblue;stroke:steelblue;"; 
-          } else { 
-            text = text + "fill:lightgray;stroke:lightgray;"; 
-          } 
-
-          text = text + "fill-opacity:0.2;stroke-width:2;stroke-opacity:0.4;pointer-events: all;";
-          return text;
-        });
-
-    for (j=0; j < d.values.length; j++) {
-      var justice = d.values[j].justiceID;
-      var column = justiceColumnsByBreakpoint[bp][justice];
-      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" +  (xScale(column)) + ",0)"; });
-      
-      //cell.append("rect").attr("width",columnWidth-26).attr("height",rowHeight-8)
-      cell.append("circle")
-        .attr("class","clickable")
-        .attr("cx",columnWidth/2).attr("cy",rowHeight/2).attr("r",(rowHeight-8)/2)
-        .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:darkred;" } else if (d.values[j].vote == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
-      //cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.num; });
-      cell.on("mouseover",function(d) { console.log(d.values[0].name);} )
-          .on("click",function(d) { window.open("https://www.google.com/?gws_rd=ssl#q="+d.values[0].name, '_blank'); } );
-    }
-  });*/
-  
+    
 
   // vars and function for srolling
   var scrollMultiplier = 0.01255;
@@ -498,8 +440,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
     mainChart.attr("transform","translate(" + scrollWidth + "," + (-scrollY*rowHeight+headerHeight) + ")");
     
     // update brush
-    viewport.extent(yScale.domain());
-    scrollBrush.select('.viewport').call(viewport);
+    //viewport.extent(yScale.domain());
+    //scrollBrush.select('.viewport').call(viewport);
+    brush.attr("transform","translate(0,"+(gridHeight*((scrollY-boxesInView/2)/numCases))+")");
     
     // update labels      
     var bp = 0;
@@ -512,7 +455,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   mainChart
     .on("wheel",function() { 
       updateScrollY(scrollY + d3.event.deltaY*scrollMultiplier);
-      console.log(d3.event.detail); console.log("delta y "+d3.event.deltaY); 
+      //console.log(d3.event.detail); console.log("delta y "+d3.event.deltaY); 
     })
     .on("mousedown",function() {
       dragging = true;
