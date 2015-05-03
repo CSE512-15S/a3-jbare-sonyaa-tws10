@@ -418,7 +418,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
         .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:darkred;" } else if (d.values[j].vote == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
       //cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.num; });
       cell.on("mouseover",function(d) { console.log(d.values[0].name);} )
-          .on("click",function(d) { window.location.href = "https://www.google.com/?gws_rd=ssl#q="+d.values[0].name; } );
+          .on("click",function(d) { window.open("https://www.google.com/?gws_rd=ssl#q="+d.values[0].name, '_blank'); } );
     }
   });
   
