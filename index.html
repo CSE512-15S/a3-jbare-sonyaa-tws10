@@ -67,7 +67,21 @@
         width: 200px;
         background-color: #ddd;
         display: none;
+        padding: 5px;
+        border-width: 2px;
+        border-color: #aaa;
+        border-style: solid;
       }
+      .arrow-left {
+            position: absolute;
+            left: 555px;
+			width: 0; 
+			height: 0; 
+			border-top: 5px solid transparent;
+			border-bottom: 5px solid transparent; 
+			border-right:20px solid #aaa;
+			display: none; 
+		}
 
 
     </style>
@@ -78,6 +92,7 @@
     
     <div class="chart"></div>
     <div class="tooltip"></div>
+    <div class="arrow-left"></div>
   </body>
 
 <script type="text/javascript">
@@ -296,7 +311,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   brush.append("rect")
       .attr("width",scrollWidth)
       .attr("height",5)
-      .attr("style", "fill:lightgray; fill-opacity: 0.5;");
+      .attr("style", "fill:gray; fill-opacity: 0.5;");
       
   scrollBrush.append("rect")
       .attr("width", scrollWidth)
@@ -506,7 +521,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     var rowHighlight = d3.select(this).append("rect")
         .attr("width", gridWidth)
         .attr("height", rowHeight)
-        .attr("class", "hoverRect")
+        .attr("class", "hoverRect clickable")
         .attr("style", function() { 
           
           if (d.overallDecision == 1) { 
@@ -519,7 +534,23 @@ d3.csv("data/scd_since2000.csv", function(d) {
 
           text = text + "fill-opacity:0.2;stroke-width:2;stroke-opacity:0.4;pointer-events: all;";
           return text;
-        });
+        })
+        .on("mouseover",function(d) { 
+            //console.log(d.num); 
+            d3.select(".tooltip")
+              .style("display","block")
+              .style("top",((d.num - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px")
+              .html("<strong>Case name: </strong>"+d.values[0].name+"<br / ><strong>Decided: </strong>"
+                 +d.values[0].decisionDate);
+            d3.select(".arrow-left")
+              .style("display","block")
+                            .style("top",((d.num +0.5 - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px");
+          })
+          .on("mouseout",function(d) {
+            d3.select(".tooltip").style("display","none");
+            d3.select(".arrow-left").style("display","none");
+          })
+          .on("click",function(d) { window.open("https://www.google.com/?gws_rd=ssl#q="+d.values[0].name,"_blank"); } );
 
     for (j=0; j < d.values.length; j++) {
       var justice = d.values[j].justiceID;
@@ -533,16 +564,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
         .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:darkred;" } else if (d.values[j].vote == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
       //cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.num; });
       cell.on("mouseover",function(d) { 
-            //console.log(d.num); 
-            d3.select(".tooltip")
-              .style("display","block")
-              .style("top",((d.num - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px")
-              .html(d.values[0].name);
-          })
-          .on("mouseout",function(d) {
-            d3.select(".tooltip").style("display","none");
-          })
-          .on("click",function(d) { window.open("https://www.google.com/?gws_rd=ssl#q="+d.values[0].name,"_blank"); } );
+        var column = Math.floor((d3.event.clientX - svg[0][0].getBoundingClientRect().left - scrollWidth) / columnWidth);
+        console.log(activeJusticesByBreakpoint[bp][column]);
+      });
     }
   });
     
