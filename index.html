@@ -62,7 +62,7 @@
 
       .tooltip {
         position: absolute;
-        left: 575px;
+        left: 675px;
         top: 100px;
         width: 200px;
         background-color: #ddd;
@@ -74,15 +74,18 @@
       }
       .arrow-left {
             position: absolute;
-            left: 555px;
+            left: 655px;
 			width: 0; 
 			height: 0; 
 			border-top: 5px solid transparent;
 			border-bottom: 5px solid transparent; 
 			border-right:20px solid #aaa;
 			display: none; 
-		}
-
+	  }
+      .zoom {
+        fill: lightgray;
+      }
+        
 
     </style>
   </head>
@@ -232,7 +235,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
   var gridWidth = 9*columnWidth;
   var gridHeight = boxesInView*rowHeight;
     
+  var axisWidth = 60;
   var scrollWidth = 100;
+  var zoomWidth = 40;
   var sideLabelWidth = 125;
 
   var justiceViewWidth = 650;
@@ -244,7 +249,13 @@ d3.csv("data/scd_since2000.csv", function(d) {
   
   var startCase = 0;
   
-
+  // x-coordinates of region beginnings
+  var axisTranslate = 0;
+  var scrollTranslate = axisTranslate + axisWidth;
+  var zoomTranslate = scrollTranslate + scrollWidth;
+  var gridTranslate = zoomTranslate + zoomWidth;
+  var sideLabelTranslate = gridTranslate + gridWidth;
+  var justiceViewTranslate = sideLabelTranslate + sideLabelWidth;
 
   // set up x and y scales
   var xScale = d3.scale.linear()
@@ -260,10 +271,8 @@ d3.csv("data/scd_since2000.csv", function(d) {
   // set up SVG
   var svg = d3.select("body").append("svg")
                                     .attr("class", "svg")
-                                    .attr("width", gridWidth + scrollWidth + sideLabelWidth + justiceViewWidth)
+                                    .attr("width", axisWidth + scrollWidth + zoomWidth + gridWidth + sideLabelWidth + justiceViewWidth)
                                     .attr("height", gridHeight + headerHeight);
-
-  var justiceViewTranslate = gridWidth + scrollWidth + sideLabelWidth;
 
   var justiceViewSpace = svg.append("g")
                       .attr("class", "justiceViewSpace")
@@ -273,7 +282,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
 
   var scrollBrush = svg.append("g")
                       .attr("class", "scrollBrush")
-                      .attr("transform", function(d) { return "translate(0," +headerHeight+")"; })
+                      .attr("transform", function(d) { return "translate("+scrollTranslate+"," +headerHeight+")"; })
                       .attr("width", scrollWidth)
                       .attr("height", gridHeight)
                       
@@ -320,7 +329,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
       .on("mousedown",function() { 
          var caseNum = (d3.event.clientY - svg[0][0].getBoundingClientRect().top - headerHeight)
             / gridHeight * numCases; 
-          console.log(caseNum);
+          //console.log(caseNum);
           updateScrollY(caseNum);
           brushing = true;
       })
@@ -328,44 +337,50 @@ d3.csv("data/scd_since2000.csv", function(d) {
         if (brushing) {
           var caseNum = (d3.event.clientY - svg[0][0].getBoundingClientRect().top - headerHeight)
             / gridHeight * numCases; 
-          console.log(caseNum);
+          //console.log(caseNum);
           updateScrollY(caseNum);
         }
       })
       .on("mouseup",function() {
-        console.log("unclicked brush");
+        //console.log("unclicked brush");
         brushing = false;
       })
       .on("mouseout",function() {
         brushing = false;
       });
 
+  // add zoom polygon  
+  var zoomPoly = svg.append("polygon")
+     .attr("class","zoom")
+     .attr("stroke","gray")
+     .attr("points",zoomTranslate+" "+headerHeight+" "+gridTranslate+" "+headerHeight+
+       " "+gridTranslate+" "+(headerHeight+gridHeight)+" "+zoomTranslate+" "+(headerHeight+5));
  
   var svgContainer = svg.append("g")
                         .attr("class", "svgContainer");
   
   // set up and add y axis
   var yAxis = d3.svg.axis()
-    .scale(yScale)
+    .scale(brushYScale)
     .orient("left");
     //.ticks(8);
     
-  /*svgContainer.append("g")
+  svgContainer.append("g")
     .attr("class", "y axis") 
-    .attr("transform", "translate(" + scrollWidth + "," + headerHeight + ")")
-    .call(yAxis);*/
+    .attr("transform", "translate("+axisWidth+"," + headerHeight + ")")
+    .call(yAxis);
    
   // set up grid
   var mainChart = svgContainer.append("g")
                               .attr("class", "mainChart")
-                              .attr("transform", function(d) { return "translate(" + scrollWidth + "," +headerHeight+")"; })
+                              .attr("transform", function(d) { return "translate(" + gridTranslate + "," +headerHeight+")"; })
                               .attr("width", gridWidth)
                               .attr("height", gridHeight);
               
   // set up and add header
   var header = svgContainer.append("g")
     .attr("class", "header")
-    .attr("transform", "translate(" + (scrollWidth-1) + ",0)")
+    .attr("transform", "translate(" + (gridTranslate-1) + ",0)")
     .attr("width", gridWidth)
     .attr("height", headerHeight);
   header.append("rect")
@@ -452,12 +467,18 @@ d3.csv("data/scd_since2000.csv", function(d) {
     svgContainer.select(".y.axis").call(yAxis);
 
     // update chart
-    mainChart.attr("transform","translate(" + scrollWidth + "," + (-scrollY*rowHeight+headerHeight) + ")");
+    mainChart.attr("transform","translate(" + gridTranslate + "," + (-scrollY*rowHeight+headerHeight) + ")");
     
     // update brush
     //viewport.extent(yScale.domain());
     //scrollBrush.select('.viewport').call(viewport);
-    brush.attr("transform","translate(0,"+(gridHeight*((scrollY-boxesInView/2)/numCases))+")");
+    var brushCenter = gridHeight*((scrollY-boxesInView/2)/numCases);
+    brush.attr("transform","translate(0,"+brushCenter+")");
+    
+    // update zoom
+    zoomPoly.attr("points",zoomTranslate+" "+(headerHeight+brushCenter)+" "+gridTranslate+" "+headerHeight+
+       " "+gridTranslate+" "+(headerHeight+gridHeight)+" "+zoomTranslate+" "+(headerHeight+brushCenter+5));
+ 
     
     // update labels      
     var bp = 0;
