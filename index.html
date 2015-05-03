@@ -42,7 +42,7 @@
       }
 
       .x.axis path {
-          display: none;
+          /*display: none;*/
       }
       .line {
           fill: none;
@@ -652,6 +652,28 @@ d3.csv("data/scd_since2000.csv", function(d) {
         return data;
     };
 
+
+//  var computeYearBreaks = function(justiceId) {
+//    var parseDate = d3.time.format("%m/%-d/%Y").parse;
+//    var firstCase = firstCases[justiceId];
+//    var lastCase = lastCases[justiceId];
+//    var breaks = {};
+//    var curYear = null;
+//    for (i = firstCase; i <= lastCase; i++) {
+//      for (var j = 0; j < nestedByCaseId[i].values.length; j++) {
+//        var justice = nestedByCaseId[i].values[j].justiceID;
+//        if (justice === justiceId) {
+//          var year = parseDate(nestedByCaseId[i].values[j].decisionDate).getFullYear();
+//          if (year !== curYear) {
+//            breaks[i] = year;
+//            curYear = year;
+//          }
+//        }
+//      }
+//    }
+//    return breaks;
+//  };
+
     var showJusticeViewAndControls = function(justiceID) {
         var controlNames = ["Liberal/conservative", "Majority/minority"];
         var values = ["direction", "majority"];
@@ -684,21 +706,31 @@ d3.csv("data/scd_since2000.csv", function(d) {
                 });
         var runningTotalData = computeRunningTotal(justiceId);
 
-        var margin = {top: 30, right: 20, bottom: 30, left: 75},
+        var margin = {top: 30, right: 20, bottom: 45, left: 75},
                 width = 650 - margin.left - margin.right,
                 height = 350 - margin.top - margin.bottom;
 
-        var x = d3.time.scale()
+//        var x = d3.time.scale()
+//                .range([0, width]);
+        var x = d3.scale.linear()
                 .range([0, width]);
 
         var y = d3.scale.linear()
                 .range([height, 0]);
 
-        var xAxis = d3.svg.axis()
-                .scale(x)
-                .orient("bottom")
-                .ticks(5)
-                .tickFormat(d3.time.format("%Y"));
+//        var xAxis = d3.svg.axis()
+//                .scale(x)
+//                .orient("bottom")
+//                .ticks(5)
+//                .tickFormat(d3.time.format("%Y"));
+//      var yearBreaks = computeYearBreaks(justiceId);
+      var xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom")
+//              .tickValues(yearBreaks.keys)
+              .ticks(5)
+              .tickFormat(function(d) { return d + ' (' + runningTotalData[d].date.getFullYear() + ')'; });
+//              .tickFormat(d3.time.format("%Y"));
 
         var yAxis = d3.svg.axis()
                 .scale(y)
@@ -706,25 +738,30 @@ d3.csv("data/scd_since2000.csv", function(d) {
 
         var yMin = d3.min(runningTotalData, function(d) { return controlValue === "direction" ? Math.min(d.direction_total, d.decision_total) : Math.min(d.majority_total, d.decision_total); });
         var yMax = controlValue === "direction" ? d3.max(runningTotalData, function(d) { return Math.max(d.direction_total, d.decision_total); }) : runningTotalData.length;
-        x.domain(d3.extent(runningTotalData, function(d) { return d.date; }));
+//        x.domain(d3.extent(runningTotalData, function(d) { return d.date; }));
+        x.domain([0, runningTotalData.length]);
         y.domain([yMin, yMax]);
 
         var line1;
         var line2 = null;
         if (controlValue === "direction") {
             line1 = d3.svg.line()
-                    .x(function(d) { return x(d.date); })
+//                    .x(function(d) { return x(d.date); })
+                    .x(function(d,i) { return x(i); })
                     .y(function(d) { return y(d.direction_total); });
             line2 = d3.svg.line()
-                    .x(function(d) { return x(d.date); })
+//                    .x(function(d) { return x(d.date); })
+                    .x(function(d,i) { return x(i); })
                     .y(function(d) { return y(d.decision_total); });
 
         } else {
             line1 = d3.svg.line()
-                    .x(function(d) { return x(d.date); })
+//                    .x(function(d) { return x(d.date); })
+                    .x(function(d,i) { return x(i); })
                     .y(function(d) { return y(d.majority_total); });
             line2 = d3.svg.line()
-                    .x(function(d) { return x(d.date); })
+//                    .x(function(d) { return x(d.date); })
+                    .x(function(d,i) { return x(i); })
                     .y(function(d,i) { return y(i); });
 
         }
@@ -741,7 +778,12 @@ d3.csv("data/scd_since2000.csv", function(d) {
         svg2.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
+                .call(xAxis)
+                .append("text")
+                .attr("x", width-5)
+                .attr("dy", "1em")
+                .style("text-anchor", "end")
+                .text("Cases (Date)");
 
         svg2.append("g")
                 .attr("class", "y axis")
@@ -799,6 +841,21 @@ d3.csv("data/scd_since2000.csv", function(d) {
                   window.open(justiceDataMap[justiceId][1]);
                 });
 
+
+        var insertLineBreaks = function (d) {
+          var el = d3.select(this);
+          var words = el.text().split(' ');
+          el.text('');
+
+          for (var i = 0; i < words.length; i++) {
+            var tspan = el.append('tspan').text(words[i]);
+            if (i > 0)
+              tspan.attr('x', el.attr('x')).attr('dy', '1em');
+          }
+        };
+
+//        svg2.selectAll('g.x.axis g text').each(insertLineBreaks);
+        svg2.selectAll('g.x.axis text').each(insertLineBreaks);
     };
 
 });
