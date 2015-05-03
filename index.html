@@ -4,6 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>A3</title>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
     <script src="justices.js" charset="utf-8"></script>
     <style>
       body {
@@ -54,9 +55,13 @@
       .clickable {
           cursor: pointer;
       }
+<<<<<<< HEAD
       .hoverRect:hover {
         opacity: 0.2;
       }
+=======
+      
+>>>>>>> origin/master
     </style>
   </head>
   <body>
@@ -83,7 +88,8 @@ d3.csv("data/scd_since2000.csv", function(d) {
     justiceID: +d.justice,
     vote: +d.direction,
     decision: +d.decisionDirection,
-    majority: +d.majority
+    majority: +d.majority,
+    name: d.caseName
   };
 }, function(error, rows) {
   
@@ -367,6 +373,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
       .attr('class', 'overlay')
       .attr('d', overlay(nestedByCaseId));
   
+<<<<<<< HEAD
   // fill grid                      
   var row = mainChart.selectAll("g")
     .data(nestedByCaseId).enter().append("g")
@@ -416,6 +423,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
     }
   });
   
+=======
+  // vars and function for srolling
+>>>>>>> origin/master
   var scrollMultiplier = -0.01255;
   var scrollY = 0;
   var dragging = false;
@@ -468,6 +478,54 @@ d3.csv("data/scd_since2000.csv", function(d) {
       }
     });
   
+  // set up overlay to catch off-element scrolling events
+  function zoomer(d) { 
+    return d.num*rowHeight; 
+  }
+
+  var overlay = d3.svg.area()
+      .y(zoomer)
+      .x0(0)
+      .x1(gridWidth);
+
+  mainChart.append('path')
+      .attr('class', 'overlay')
+      .attr('d', overlay(nestedByCaseId));
+  
+
+  // fill grid                      
+  var row = mainChart.selectAll("g")
+    .data(nestedByCaseId).enter().append("g")
+    .attr("transform", function(d, i) { return "translate(0," + yScale(i) + ")"; });
+
+  row.each(function(d,i) {
+    //console.log(d);
+    var bp = 0;
+    while (breakpoints[bp] <= i) { bp++; }
+    //console.log(i + " -> " + bp);
+
+    scrollBrush.append("rect")
+        .attr("transform", "translate(" + scrollWidth/4 + ", " + (brushYScale(d.num)) + ")" )
+        .attr("width", scrollWidth/2)
+        .attr("height", 1)
+        .attr("style", function() { if (d.overallDecision == 1) { return "fill:darkred;" } else if (d.overallDecision == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
+
+    for (j=0; j < d.values.length; j++) {
+      var justice = d.values[j].justiceID;
+      var column = justiceColumnsByBreakpoint[bp][justice];
+      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" +  (xScale(column)) + ",4)"; });
+      
+      //cell.append("rect").attr("width",columnWidth-26).attr("height",rowHeight-8)
+      cell.append("circle")
+        .attr("class","clickable")
+        .attr("cx",columnWidth/2).attr("cy",rowHeight/2).attr("r",(rowHeight-8)/2)
+        .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:darkred;" } else if (d.values[j].vote == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
+      //cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.num; });
+      cell.on("mouseover",function(d) { console.log(d.values[0].name);} )
+          .on("click",function(d) { window.location.href = "https://www.google.com/?gws_rd=ssl#q="+d.values[0].name; } );
+    }
+  });
+    
   // add scrolling behavior
   /*var zoom = d3.behavior.zoom()
     .y(yScale)
@@ -504,7 +562,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
             //.attr("class", "clickable")
             .text(justiceDataMap[justiceID][0])
                   .on("mouseover",function() {
-                    console.log(justiceID + " mouseover");
+                    //console.log(justiceID + " mouseover");
                     d3.select(this).attr("style","font-weight: bold; cursor: pointer; ");
                   })
                   .on("mouseout",function() {
@@ -532,9 +590,12 @@ d3.csv("data/scd_since2000.csv", function(d) {
   
   applyLabels(0);
 
+<<<<<<< HEAD
   
       //.call(zoom);
 
+=======
+>>>>>>> origin/master
   //svgContainer.call(zoom);
 
     var computeRunningTotal = function(justiceId) {
