@@ -389,13 +389,14 @@ d3.csv("data/scd_since2000.csv", function(d) {
   };
 
   var yearBreaks = computeYearBreaks();
+  var tickPeriod = 4;
+  var tickYears = yearBreaks.keys().filter(function(d,i) {return i % tickPeriod == 0;});
   // set up and add y axis
-  var tmp = yearBreaks.keys();
   var yAxis = d3.svg.axis()
     .scale(brushYScale)
     .orient("left")
 //    .ticks(yearBreaks.keys.length)
-    .tickValues(yearBreaks.keys())
+    .tickValues(tickYears)
     .tickFormat(function(d) {
             return yearBreaks.get(d);
           });
