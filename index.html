@@ -672,7 +672,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
             for (var j = 0; j < nestedByCaseId[i].values.length; j++) {
                 var justice = nestedByCaseId[i].values[j].justiceID;
                 if (justice === justiceId) {
-                    directionTotal += (nestedByCaseId[i].values[j].vote === 2 ? 1 : -1);
+                    if (nestedByCaseId[i].values[j].decision !== 3) {
+                        directionTotal += (nestedByCaseId[i].values[j].vote === 2 ? 1 : -1);
+                    }
                     majorityTotal += (nestedByCaseId[i].values[j].majority === 2 ? 1 : -1);
                     if (nestedByCaseId[i].values[j].decision !== 3) {
                         decisionTotal += (nestedByCaseId[i].values[j].decision === 2 ? 1 : -1);
