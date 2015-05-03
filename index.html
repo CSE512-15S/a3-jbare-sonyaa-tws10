@@ -56,6 +56,15 @@
           cursor: pointer;
       }
       
+      .tooltip {
+        position: absolute;
+        left: 575px;
+        top: 100px;
+        width: 200px;
+        background-color: #ddd;
+        display: none;
+      }
+      
     </style>
   </head>
   <body>
@@ -63,6 +72,7 @@
     <h1>Supreme Court Jukebox</h1>
     
     <div class="chart"></div>
+    <div class="tooltip"></div>
   </body>
 
 <script type="text/javascript">
@@ -450,7 +460,16 @@ d3.csv("data/scd_since2000.csv", function(d) {
         .attr("cx",columnWidth/2).attr("cy",rowHeight/2).attr("r",(rowHeight-8)/2)
         .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:darkred;" } else if (d.values[j].vote == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
       //cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.num; });
-      cell.on("mouseover",function(d) { console.log(d.values[0].name);} )
+      cell.on("mouseover",function(d) { 
+            console.log(d.num); 
+            d3.select(".tooltip")
+              .style("display","block")
+              .style("top",((d.num - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px")
+              .html(d.values[0].name);
+          })
+          .on("mouseout",function(d) {
+            d3.select(".tooltip").style("display","none");
+          })
           .on("click",function(d) { window.location.href = "https://www.google.com/?gws_rd=ssl#q="+d.values[0].name; } );
     }
   });
