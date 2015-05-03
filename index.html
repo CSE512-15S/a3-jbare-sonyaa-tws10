@@ -4,7 +4,6 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
     <title>A3</title>
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
     <script src="justices.js" charset="utf-8"></script>
     <style>
       body {
@@ -27,7 +26,7 @@
       }
       .overlay {
           stroke-width: 0px;
-          fill-opacity: 0.05;
+          fill-opacity: 0.00;
       }
       .viewport {
           stroke: gray;
@@ -55,7 +54,11 @@
       .clickable {
           cursor: pointer;
       }
-      
+
+      .hoverRect:hover {
+        opacity: 0.2;
+      }
+
       .tooltip {
         position: absolute;
         left: 575px;
@@ -303,7 +306,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   // set up and add header
   var header = svgContainer.append("g")
     .attr("class", "header")
-    .attr("transform", "translate(" + scrollWidth + ",0)")
+    .attr("transform", "translate(" + (scrollWidth-1) + ",0)")
     .attr("width", gridWidth)
     .attr("height", headerHeight);
   header.append("rect")
@@ -363,7 +366,70 @@ d3.csv("data/scd_since2000.csv", function(d) {
         .attr("stroke","lightgray");
     }
   }
+
+  function zoomer(d) { 
+    return d.num*rowHeight; 
+  }
+
+  var overlay = d3.svg.area()
+      .y(zoomer)
+      .x0(0)
+      .x1(gridWidth);
+
+  mainChart.append('path')
+      .attr('class', 'overlay')
+      .attr('d', overlay(nestedByCaseId));
   
+  // fill grid      TODO: delete this                 
+  /*var row = mainChart.selectAll("g")
+    .data(nestedByCaseId).enter().append("g")
+    .attr("class", "row-g")
+    .attr("transform", function(d, i) { return "translate(0," + yScale(i) + ")"; });
+
+  row.each(function(d,i) {
+    //console.log(d);
+    var bp = 0;
+    while (breakpoints[bp] <= i) { bp++; }
+    //console.log(i + " -> " + bp);
+
+    scrollBrush.append("rect")
+        .attr("transform", "translate(" + scrollWidth/3 + ", " + (brushYScale(d.num)) + ")" )
+        .attr("width", scrollWidth/3)
+        .attr("height", 1)
+        .attr("style", function() { if (d.overallDecision == 1) { return "fill:darkred;" } else if (d.overallDecision == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
+
+    var text = "";
+    var rowHighlight = d3.select(this).append("rect")
+        .attr("width", gridWidth)
+        .attr("height", rowHeight)
+        .attr("class", "hoverRect")
+        .attr("style", function() { 
+          
+          if (d.overallDecision == 1) { 
+            text = text +  "fill:darkred;stroke:darkred;" 
+          } else if (d.overallDecision == 2) { 
+            text = text + "fill:steelblue;stroke:steelblue;"; 
+          } else { 
+            text = text + "fill:lightgray;stroke:lightgray;"; 
+          } 
+
+          text = text + "fill-opacity:0.2;stroke-width:2;stroke-opacity:0.4;pointer-events: all;";
+          return text;
+        });
+
+    for (j=0; j < d.values.length; j++) {
+      var justice = d.values[j].justiceID;
+      var column = justiceColumnsByBreakpoint[bp][justice];
+      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" +  (xScale(column)) + ",0)"; });
+      
+      //cell.append("rect").attr("width",columnWidth-26).attr("height",rowHeight-8)
+      cell.append("circle").attr("cx",columnWidth/2).attr("cy",rowHeight/2).attr("r",(rowHeight-8)/2)
+        .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:darkred;" } else if (d.values[j].vote == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
+      //cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.num; });
+    }
+  });*/
+  
+
   // vars and function for srolling
   var scrollMultiplier = -0.01255;
   var scrollY = 0;
@@ -448,6 +514,25 @@ d3.csv("data/scd_since2000.csv", function(d) {
         .attr("width", scrollWidth/2)
         .attr("height", 1)
         .attr("style", function() { if (d.overallDecision == 1) { return "fill:darkred;" } else if (d.overallDecision == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
+
+    var text = "";
+    var rowHighlight = d3.select(this).append("rect")
+        .attr("width", gridWidth)
+        .attr("height", rowHeight)
+        .attr("class", "hoverRect")
+        .attr("style", function() { 
+          
+          if (d.overallDecision == 1) { 
+            text = text +  "fill:darkred;stroke:darkred;" 
+          } else if (d.overallDecision == 2) { 
+            text = text + "fill:steelblue;stroke:steelblue;"; 
+          } else { 
+            text = text + "fill:lightgray;stroke:lightgray;"; 
+          } 
+
+          text = text + "fill-opacity:0.2;stroke-width:2;stroke-opacity:0.4;pointer-events: all;";
+          return text;
+        });
 
     for (j=0; j < d.values.length; j++) {
       var justice = d.values[j].justiceID;
@@ -648,19 +733,19 @@ d3.csv("data/scd_since2000.csv", function(d) {
 
 
         d3.select("body").selectAll("svg.justiceView").remove();
-        var svg = d3.select("body").append("svg")
+        var svg2 = d3.select("body").append("svg")
                 .attr("class", "justiceView")
                 .attr("justiceId", justiceId)
                 .attr("width", width + margin.left + margin.right)
                 .attr("height", height + margin.top + margin.bottom)
                 .append("g")
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        svg.append("g")
+        svg2.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + height + ")")
                 .call(xAxis);
 
-        svg.append("g")
+        svg2.append("g")
                 .attr("class", "y axis")
                 .call(yAxis)
                 .append("text")
@@ -671,7 +756,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
                 .text(controlValue === "direction" ? "Liberal votes running total" : "Majority votes running total");
 
         var zeroPercent = Math.abs(yMin/(yMax - yMin));
-        svg.append("linearGradient")
+        svg2.append("linearGradient")
                 .attr("id", "line-gradient")
                 .attr("gradientUnits", "userSpaceOnUse")
                 .attr("x1", 0).attr("y1", y(yMin))
@@ -688,18 +773,18 @@ d3.csv("data/scd_since2000.csv", function(d) {
                 .attr("stop-color", function(d) { return d.color; });
 
 
-        svg.append("path")
+        svg2.append("path")
                 .datum(runningTotalData)
                 .attr("class", "line")
     //          .stroke: url(#line-gradient);*/
                 .attr("d", line1);
-        svg.append("path")
+        svg2.append("path")
                 .datum(runningTotalData)
                 .attr("class", "line")
                 .style("stroke", "grey")
                 .attr("d", line2);
 
-        svg.append("text")
+        svg2.append("text")
                 .attr("x", (width / 2))
                 .attr("y", 0 - (margin.top / 2))
                 .attr("text-anchor", "middle")
