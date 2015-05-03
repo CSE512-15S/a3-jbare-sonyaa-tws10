@@ -787,7 +787,18 @@ d3.csv("data/scd_since2000.csv", function(d) {
                 .attr("y", 0 - (margin.top / 2))
                 .attr("text-anchor", "middle")
                 .style("font-size", "16px")
-                .text(justiceDataMap[justiceId][0]);
+                .text(justiceDataMap[justiceId][0])
+                .on("mouseover",function() {
+                  //console.log(justiceID + " mouseover");
+                  d3.select(this).attr("style","font-weight: bold; cursor: pointer; ");
+                })
+                .on("mouseout",function() {
+                  d3.select(this).attr("style","font-weight: normal; cursor: pointer;");
+                })
+                .on("click",function(d) {
+                  window.open(justiceDataMap[justiceId][1]);
+                });
+
     };
 
 });
