@@ -112,6 +112,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
   var lastCases = {};
   var libTotal = 0;
   var consTotal = 0;
+  var movingAverage = 0;
+  var movingAverageBin = 50;
+
   for (var i = 0; i < numCases; i ++ ) {
     for (var j = 0; j < nestedByCaseId[i].values.length; j++) {
       var justice = nestedByCaseId[i].values[j].justiceID;
@@ -126,15 +129,27 @@ d3.csv("data/scd_since2000.csv", function(d) {
       }
     }
     nestedByCaseId[i].num = i;
-    if (libTotal + consTotal < 5) {
-      nestedByCaseId[i].overallDecision = 3;
-    } else if (libTotal > consTotal) {
+    var decisionForAverage = 0;
+    if (libTotal > 5) {
       nestedByCaseId[i].overallDecision = 2;
-    } else if (consTotal > libTotal) {
+      decisionForAverage = 1;
+    } else if (consTotal > 5) {
       nestedByCaseId[i].overallDecision = 1;
+      decisionForAverage = -1;
     } else {
       nestedByCaseId[i].overallDecision = 3;
     }
+
+    nestedByCaseId[i].decisionForAverage = decisionForAverage;
+
+    if (i < movingAverageBin) {
+      movingAverage = ( (movingAverage * i) + decisionForAverage ) / (i + 1);
+    } else {
+      movingAverage = movingAverage - (nestedByCaseId[i - movingAverageBin].decisionForAverage/movingAverageBin) + decisionForAverage/(movingAverageBin);
+    }
+
+    nestedByCaseId[i].movingAverage = movingAverage;
+    console.log(movingAverage);
 
     libTotal = 0;
     consTotal = 0;
@@ -236,12 +251,32 @@ d3.csv("data/scd_since2000.csv", function(d) {
                       .attr("width", scrollWidth)
                       .attr("height", gridHeight);
 
-  var brushXScale = d3.time.scale() // ???
-          .domain([0, 9])
+  var brushXScale = d3.scale.linear() // ???
+          .domain([-1, 1])
           .range([0, scrollWidth]),
       brushYScale = d3.scale.linear()
           .domain([0, numCases])
           .range([0, gridHeight]);
+
+  scrollLine = d3.svg.line()
+          .x(function(d) { return brushXScale(d.movingAverage); })
+          .y(function(d) { return brushYScale(d.num); });
+
+  scrollAxis = d3.svg.line()
+          .x(function(d) { return brushXScale(0); })
+          .y(function(d) { return brushYScale(d.num); });
+
+  scrollBrush.append("path")
+          .datum(nestedByCaseId)
+          .attr("class", "line")
+          .style("stroke", "grey")
+          .attr("d", scrollAxis);    
+
+  scrollBrush.append("path")
+          .datum(nestedByCaseId)
+          .attr("class", "line")
+          .style("stroke", "black")
+          .attr("d", scrollLine);
 
   var viewport = d3.svg.brush()
       .y(brushYScale)
@@ -507,12 +542,12 @@ d3.csv("data/scd_since2000.csv", function(d) {
     while (breakpoints[bp] <= i) { bp++; }
     //console.log(i + " -> " + bp);
 
-    scrollBrush.append("rect")
+    /*scrollBrush.append("rect")
         .attr("transform", "translate(" + scrollWidth/4 + ", " + (brushYScale(d.num)) + ")" )
         .attr("width", scrollWidth/2)
         .attr("height", 1)
         .attr("style", function() { if (d.overallDecision == 1) { return "fill:darkred;" } else if (d.overallDecision == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
-
+*/
     var text = "";
     var rowHighlight = d3.select(this).append("rect")
         .attr("width", gridWidth)
@@ -535,7 +570,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     for (j=0; j < d.values.length; j++) {
       var justice = d.values[j].justiceID;
       var column = justiceColumnsByBreakpoint[bp][justice];
-      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" +  (xScale(column)) + ",4)"; });
+      var cell = d3.select(this).append("g").attr("transform", function(d) { return "translate(" +  (xScale(column)) + ",0)"; });
       
       //cell.append("rect").attr("width",columnWidth-26).attr("height",rowHeight-8)
       cell.append("circle")
