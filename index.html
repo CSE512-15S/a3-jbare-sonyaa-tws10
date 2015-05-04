@@ -62,7 +62,7 @@
 
       .tooltip {
         position: absolute;
-        left: 675px;
+        left: 620px;
         top: 100px;
         width: 200px;
         background-color: #ddd;
@@ -74,7 +74,7 @@
       }
       .arrow-left {
             position: absolute;
-            left: 655px;
+            left: 600px;
 			  width: 0; 
 			  height: 0; 
 			  border-top: 5px solid transparent;
@@ -813,6 +813,12 @@ d3.csv("data/scd_since1957.csv", function(d) {
       var addedJustice = justiceAdditionsByBreakpoint[breakpoint];
       sideLabel.text(justiceDataMap[addedJustice][0])
         .attr("transform","translate("+(gridWidth+10)+","+((breakpoints[breakpoint]+0.5)*rowHeight+5)+")")
+        .on("mouseover",function() {
+                    d3.select(this).attr("style","font-weight: bold; cursor: pointer; ");
+                  })
+                  .on("mouseout",function() {
+                    d3.select(this).attr("style","font-weight: normal; cursor: pointer;");
+                  })
         .on("click", function () {
             showJusticeViewAndControls(addedJustice);
         });
