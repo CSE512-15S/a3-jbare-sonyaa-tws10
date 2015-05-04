@@ -39,6 +39,9 @@ The main view shows 100 cases. The data shown in the main view can be filtered b
 ![](https://github.com/CSE512-15S/a3-jbare-sonyaa-tws10/blob/master/images/storyboard_justice_change.jpg)
 
 ## Description of the final interactive visualization application
+
+![](https://github.com/CSE512-15S/a3-jbare-sonyaa-tws10/blob/master/images/final.png)
+
 This visualization shows ideological data about Supreme Court votes by justices between 1946 and 2014. 
 
 "Liberal" decisions are shown as blue circles in the main chart, "conservative" decisions are shown as red circles, and abstentions or other non-decisions are shown as gray circles (circles are absent for absent data). The background of each row shows the majority ideological direction, which corresponds to the final decision on each case. Clicking the row opens up Google search results for that case in a new browser tab. Clicking and dragging in the main chart, or using the mouse wheel over it, scrolls through the cases.
