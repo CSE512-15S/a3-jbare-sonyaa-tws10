@@ -43,6 +43,7 @@ TODO
 
 ## Explanation of changes between the storyboard and the final implementation
 * Addition of the conservative/liberal overview. By providing a high-level overview, we enable the user to quickly locate interesting patterns and navigate to them using the time brush.
+* Coupling of the two views: the time period shown in the main view is also shown on the overview and on the justice-centered view. This allows the user to explore patterns seen on the justice-centered view in more detail in the main view.
 * TODO
 
 # The development process
