@@ -71,11 +71,11 @@ TODO
 
 ### Commentary on the development process 
 * **Roughly how much time did you spend developing your application (in man-hour)?** 
- * Tanner: TODO
+ * Tanner: 15
  * Justin: 15
  * Sonya: 10 (+ about 7 hours spent on dataset selection, initial data exploration, additional data acquisition, storyboard and write-up)
 
 * **What aspects took the most time?** 
- * Tanner: TODO
+ * Tanner: Learning how D3 works, especially binding nested data to nested elements! Also, this dataset is unique in that there are always at most 9 columns but the column headers change over time, so it was a bit tricky to deal with that.
  * Justin: Learning how D3 works. Reading and understanding other peoples' code. 
  * Sonya: D3 fundamentals. Making unorthodox axis tick labels (i.e. if the axis is based on cases, make the ticks display years). Making a line colored based on data values (especially if the domain is not symmetric). Styling (I have almost zero experience with CSS).
