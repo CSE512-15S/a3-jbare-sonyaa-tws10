@@ -117,6 +117,8 @@ d3.json("justices.json", function(error, json) {
 
 var dateFormat = d3.time.format("%m/%-d/%Y");
 d3.csv("data/scd_since2000.csv", function(d) {
+//d3.csv("data/scd_since1957.csv", function(d) {
+//d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
   return {
     caseId: d.caseId,
     decisionDate: dateFormat.parse(d.dateDecision), // convert to Date
@@ -136,6 +138,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   var nestedByCaseId = d3.nest().key(function(d) { return d.caseId; }).entries(rows);
     
   var numCases = nestedByCaseId.length;
+  var lastJustice = 0;
 
   // compute first and last active cases for all justices
   var firstCases = {};
@@ -148,6 +151,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
   for (var i = 0; i < numCases; i ++ ) {
     for (var j = 0; j < nestedByCaseId[i].values.length; j++) {
       var justice = nestedByCaseId[i].values[j].justiceID;
+      lastJustice = Math.max(justice,lastJustice);
       if (firstCases[justice] == undefined) {
         firstCases[justice] = i;
       }
@@ -188,34 +192,43 @@ d3.csv("data/scd_since2000.csv", function(d) {
   //console.log(firstCases);
   //console.log(lastCases);
 
+  for (i in firstCases) {
+    console.log(i + ": " + firstCases[i] + " -> " + lastCases[i]);
+  }
+
   // compute the break-points, i.e. when the set of active justices change
   var activeJustices = d3.set();
-  //console.log(nestedByCaseId[0]);
+
+  // initialize active justices with the justices who decided the first case in the DB
   for (var j = 0; j < nestedByCaseId[0].values.length; j++) {
 	  activeJustices.add(nestedByCaseId[0].values[j].justiceID);
   }
   console.log(activeJustices.size());
-  
+ 
   var breakpoints = [];
   var activeJusticesByBreakpoint = [activeJustices.values()];
   var justiceAdditionsByBreakpoint = [];
   var justiceRemovalsByBreakpoint = [];
   while (true) {
+    // find the next justice to leave
     var nextToLeave = activeJustices.values()[0];
-    for (j = 1; j < activeJustices.size(); ++j) {
+    for (j = 1; j < activeJustices.size(); j++) {
       if (lastCases[activeJustices.values()[j]] < lastCases[nextToLeave]) {
         nextToLeave = activeJustices.values()[j];
       }
     }
+        
+    console.log("next to leave: " + nextToLeave);
     if (lastCases[nextToLeave] == (numCases - 1)) { break; }
     //console.log("next to leave: " + nextToLeave);
     activeJustices.remove(nextToLeave);
-    var nextToArrive;
+    var nextToArrive = lastJustice;
     for (j in firstCases) {
-      if (firstCases[j] == lastCases[nextToLeave]+1) {
+      if (firstCases[j] > lastCases[nextToLeave] && firstCases[j] < firstCases[nextToArrive] && !activeJustices.has(j)) {
         nextToArrive = j;
       }
     }
+    console.log("next to arrive: " + nextToArrive);
     activeJustices.add(nextToArrive);
     breakpoints.push(lastCases[nextToLeave]+1);
     activeJusticesByBreakpoint.push(activeJustices.values());
@@ -224,7 +237,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     //console.log("next to arrive: " + nextToArrive);
   }
   breakpoints.push(numCases);
-  
+    
   // compute justice column per region of the chart
   justiceColumnsByBreakpoint = [];
   for (i in activeJusticesByBreakpoint) {
@@ -440,7 +453,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
     .text("");
                
   // draw lines
-  for (var i=0; i<9; i++) {
+  /*for (var i=0; i<9; i++) {
     mainChart.append("line")
       .attr("x1",columnWidth*(i+0.5)).attr("y1",yScale(0))
       .attr("x2",columnWidth*(i+0.5)).attr("y2",yScale(breakpoints[0]-0.5))
@@ -477,7 +490,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
         .attr("stroke-width",6)
         .attr("stroke","lightgray");
     }
-  }
+  }*/
 
   function zoomer(d) { 
     return d.num*rowHeight; 
@@ -625,6 +638,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
         .attr("cx",columnWidth/2).attr("cy",rowHeight/2).attr("r",(rowHeight-8)/2)
         .attr("style",function(d) { if (d.values[j].vote == 1) { return "fill:darkred;" } else if (d.values[j].vote == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
       //cell.append("text").attr("x",5).attr("y",15).text(function(d) { return d.num; });
+      //cell.append("text").attr("x",5).attr("y",15).text(function(d) { return justice; });
       cell.on("mouseover",function(d) { 
         var column = Math.floor((d3.event.clientX - svg[0][0].getBoundingClientRect().left - scrollWidth) / columnWidth);
         console.log(activeJusticesByBreakpoint[bp][column]);
