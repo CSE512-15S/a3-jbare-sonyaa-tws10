@@ -85,6 +85,7 @@
 	    
       .zoom {
         fill: lightgray;
+        fill-opacity: 0.5;
       }
       
       .justiceViewType {
@@ -116,8 +117,8 @@ d3.json("justices.json", function(error, json) {
     }
 
 var dateFormat = d3.time.format("%m/%-d/%Y");
-d3.csv("data/scd_since2000.csv", function(d) {
-//d3.csv("data/scd_since1957.csv", function(d) {
+//d3.csv("data/scd_since2000.csv", function(d) {
+d3.csv("data/scd_since1957.csv", function(d) {
 //d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
   return {
     caseId: d.caseId,
@@ -266,14 +267,14 @@ d3.csv("data/scd_since2000.csv", function(d) {
   var boxesInView = 13;
   var yMax = rowHeight*(numCases-boxesInView);
   
-  var columnWidth = 50;
+  var columnWidth = 45;
   
   var gridWidth = 9*columnWidth;
   var gridHeight = boxesInView*rowHeight;
     
   var axisWidth = 60;
   var scrollWidth = 100;
-  var zoomWidth = 40;
+  var zoomWidth = 30;
   var sideLabelWidth = 125;
 
   var justiceViewWidth = 650;
@@ -602,7 +603,6 @@ d3.csv("data/scd_since2000.csv", function(d) {
 
   // fill grid 
   function fillGrid() {  
-  console.log("filling grid for "+scrollY);  
   
   var dataJoin = mainChart.selectAll("g")
     .data(nestedByCaseId.filter(function(d) {
