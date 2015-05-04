@@ -51,10 +51,8 @@ Clicking on the name of a justice brings up a graph showing a running total of t
 * Addition of the conservative/liberal overview. By providing a high-level overview, we enable the user to quickly locate interesting patterns and navigate to them using the time brush.
 * Coupling of the two views: the time period shown in the main view is also shown on the overview and on the justice-centered view. This allows the user to explore patterns seen on the justice-centered view in more detail in the main view.
 * We decided not to implement the filter feature due to time constraints.
-* TODO
 
 # The development process
-TODO
 ### Breakdown of work split 
 * Tanner
   * Column headers / proper positioning of circles by justice
