@@ -256,8 +256,9 @@ d3.csv("data/scd_since2000.csv", function(d) {
   for (i in nestedByCaseId) {
     var bp = 0;
     while (breakpoints[bp] <= i) { bp++; }
-    //console.log(i + "," + bp);
-    nestedByCaseId[i].breakpoint = bp;
+    for (var j=0; j<nestedByCaseId[i].values.length; j++) {
+      nestedByCaseId[i].values[j].breakpoint = bp;
+    }
   }
   
   // set up size variables
@@ -542,6 +543,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
 
     // update chart
     mainChart.attr("transform","translate(" + gridTranslate + "," + (-scrollY*rowHeight+headerHeight) + ")");
+    fillGrid();
     
     // update brush
     //viewport.extent(yScale.domain());
@@ -598,24 +600,108 @@ d3.csv("data/scd_since2000.csv", function(d) {
   
   // set up overlay to catch off-element scrolling events
 
-  // fill grid                      
-  var row = mainChart.selectAll("g")
-    .data(nestedByCaseId).enter().append("g")
-    .attr("transform", function(d, i) { return "translate(0," + yScale(i) + ")"; });
-
-  var dot = row.selectAll("circle")
-    .data(function(d) { return d.values; }).enter().append("circle")
+  // fill grid 
+  function fillGrid() {  
+  console.log("filling grid for "+scrollY);  
+  
+  var dataJoin = mainChart.selectAll("g")
+    .data(nestedByCaseId.filter(function(d) {
+      return d.num >= (scrollY - 1) && d.num <= (scrollY + boxesInView);
+    }));            
+  
+  // remove exit rows  
+  dataJoin.exit().remove();
+   
+  // update row transforms      
+  dataJoin.attr("transform", function(d, i) { return "translate(0," + (rowHeight*d.num) + ")"; })
+    .on("mouseover",function(d) { 
+            d3.select(".tooltip")
+              .style("display","block")
+              .style("top",((d.num - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px")
+              .html("<strong>Case name: </strong>"+d.values[0].name+"<br / ><strong>Decided: </strong>"
+                 + dateFormat(d.values[0].decisionDate));
+            d3.select(".arrow-left")
+              .style("display","block")
+                            .style("top",((d.num +0.5 - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px");
+          });
+  
+  
+  var rowJoin = dataJoin.selectAll("circle")
+    .data(function(d) { return d.values; });
+  rowJoin.attr("cx",function(d,i,j) {
+          var justice = d.justiceID;
+          var bp = d.breakpoint;
+          var column = justiceColumnsByBreakpoint[bp][justice];
+          return columnWidth*(column + 0.5);
+        })
+        //.attr("cy",rowHeight/2).attr("r",(rowHeight-8)/2)
+        .attr("style",function(d) { if (d.vote == 1) { return "fill:darkred;" } else if (d.vote == 2) { return "fill:steelblue;"; } else { return "fill:gray;"; } });
+  rowJoin.enter().append("circle")
         .attr("class","clickable")
         .attr("cx",function(d,i,j) {
           var justice = d.justiceID;
-          //console.log(i + "," + j);
-          var bp = nestedByCaseId[j].breakpoint;
+          var bp = d.breakpoint;
           var column = justiceColumnsByBreakpoint[bp][justice];
           return columnWidth*(column + 0.5);
         })
         .attr("cy",rowHeight/2).attr("r",(rowHeight-8)/2)
-        .attr("style",function(d) { if (d.vote == 1) { return "fill:darkred;" } else if (d.vote == 2) { return "fill:steelblue;"; } else { return "fill:lightgray;"; } });
-                
+        .attr("style",function(d) { if (d.vote == 1) { return "fill:darkred;" } else if (d.vote == 2) { return "fill:steelblue;"; } else { return "fill:gray;"; } });
+          
+  rowJoin.exit().remove();  
+        
+  var newRow = dataJoin.enter().append("g")
+      .attr("transform", function(d, i) { return "translate(0," + (rowHeight*i) + ")"; });
+
+  newRow.append("rect")
+        .attr("width", gridWidth)
+        .attr("height", rowHeight)
+        .attr("class", "hoverRect clickable")
+        .attr("style", function(d) { 
+          
+          var text = "";
+          if (d.overallDecision == 1) { 
+            text = text +  "fill:darkred;stroke:darkred;" 
+          } else if (d.overallDecision == 2) { 
+            text = text + "fill:steelblue;stroke:steelblue;"; 
+          } else { 
+            text = text + "fill:lightgray;stroke:lightgray;"; 
+          } 
+
+          text = text + "fill-opacity:0.15;stroke-width:0;stroke-opacity:0.4;pointer-events: all;";
+          return text;
+        })
+        .on("mouseover",function(d) { 
+            d3.select(".tooltip")
+              .style("display","block")
+              .style("top",((d.num - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px")
+              .html("<strong>Case name: </strong>"+d.values[0].name+"<br / ><strong>Decided: </strong>"
+                 + dateFormat(d.values[0].decisionDate));
+            d3.select(".arrow-left")
+              .style("display","block")
+                            .style("top",((d.num +0.5 - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px");
+          })
+          .on("mouseout",function(d) {
+            d3.select(".tooltip").style("display","none");
+            d3.select(".arrow-left").style("display","none");
+          })
+          .on("click",function(d) { window.open("https://www.google.com/?gws_rd=ssl#q="+d.values[0].name,"_blank"); } );
+
+
+  var dot = newRow.selectAll("circle")
+    .data(function(d) { return d.values; }).enter().append("circle")
+        .attr("class","clickable")
+        .attr("cx",function(d,i,j) {
+          var justice = d.justiceID;
+          var bp = d.breakpoint;
+          var column = justiceColumnsByBreakpoint[bp][justice];
+          return columnWidth*(column + 0.5);
+        })
+        .attr("cy",rowHeight/2).attr("r",(rowHeight-8)/2)
+        .attr("style",function(d) { if (d.vote == 1) { return "fill:darkred;" } else if (d.vote == 2) { return "fill:steelblue;"; } else { return "fill:gray;"; } });
+          
+          
+   } 
+   fillGrid();      
     /*var text = "";
     var rowHighlight = d3.select(this).append("rect")
         .attr("width", gridWidth)
@@ -748,7 +834,6 @@ d3.csv("data/scd_since2000.csv", function(d) {
       }
     } else {
       sideLabel.text("");
-      console.log(breakpoints[breakpoint] + ", " + scrollY);
     }
   }
   
