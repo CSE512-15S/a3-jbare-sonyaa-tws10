@@ -582,6 +582,8 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
   mainChart
     .on("wheel",function() { 
       updateScrollY(scrollY + d3.event.deltaY*scrollMultiplier);
+      d3.select(".tooltip").style("display","none");
+      d3.select(".arrow-left").style("display","none");
       //console.log(d3.event.detail); console.log("delta y "+d3.event.deltaY); 
     })
     .on("mousedown",function() {
@@ -631,13 +633,18 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
             console.log(document.body.scrollTop);
             d3.select(".tooltip")
               .style("display","block")
-              .style("top",((d.num - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px")
+              .style("top",((d.num - scrollY)*rowHeight + document.body.scrollTop + headerHeight + svg[0][0].getBoundingClientRect().top - 2)+"px")
               .html("<strong>Case name: </strong>"+d.values[0].name+"<br / ><strong>Decided: </strong>"
                  + dateFormat(d.values[0].decisionDate));
             d3.select(".arrow-left")
               .style("display","block")
-                            .style("top",((d.num +0.5 - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px");
-          });
+                            .style("top",((d.num +0.5 - scrollY)*rowHeight + document.body.scrollTop + headerHeight + svg[0][0].getBoundingClientRect().top - 2)+"px");
+          })
+           .on("mouseout",function(d) {
+            d3.select(".tooltip").style("display","none");
+            d3.select(".arrow-left").style("display","none");
+          })
+          .on("click",function(d) { window.open("https://www.google.com/?gws_rd=ssl#q="+d.values[0].name,"_blank"); } );;
   
   console.log(dataJoin.select("rect"));
   dataJoin.select("rect").attr("style", function(d) { 
@@ -702,12 +709,12 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
         .on("mouseover",function(d) { 
             d3.select(".tooltip")
               .style("display","block")
-              .style("top",((d.num - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px")
+              .style("top",((d.num - scrollY)*rowHeight + document.body.scrollTop + headerHeight + svg[0][0].getBoundingClientRect().top - 2)+"px")
               .html("<strong>Case name: </strong>"+d.values[0].name+"<br / ><strong>Decided: </strong>"
                  + dateFormat(d.values[0].decisionDate));
             d3.select(".arrow-left")
               .style("display","block")
-                            .style("top",((d.num +0.5 - scrollY)*rowHeight + headerHeight + svg[0][0].getBoundingClientRect().top)+"px");
+                            .style("top",((d.num +0.5 - scrollY)*rowHeight + document.body.scrollTop + headerHeight + svg[0][0].getBoundingClientRect().top - 2)+"px");
           })
           .on("mouseout",function(d) {
             d3.select(".tooltip").style("display","none");
