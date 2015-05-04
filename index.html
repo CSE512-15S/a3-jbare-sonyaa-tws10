@@ -277,7 +277,7 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
 
   var headerHeight = 160;
   var rowHeight = 32;
-  var boxesInView = 30; //Math.max(1,Math.floor((window.innerHeight - bodyMargin - h1Height - headerHeight)/rowHeight)-1); //13;
+  var boxesInView = Math.max(1,Math.floor((window.innerHeight - bodyMargin - h1Height - headerHeight)/rowHeight)-1); //13;
   var yMax = rowHeight*(numCases-boxesInView);
   
   var columnWidth = 45;
@@ -584,31 +584,27 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
       updateScrollY(scrollY + d3.event.deltaY*scrollMultiplier);
       d3.select(".tooltip").style("display","none");
       d3.select(".arrow-left").style("display","none");
-      //console.log(d3.event.detail); console.log("delta y "+d3.event.deltaY); 
+      d3.event.preventDefault();
     })
     .on("mousedown",function() {
       dragging = true;
-      console.log(d3.event.clientY);
       lastMouseY = d3.event.clientY;
     })
     .on("mousemove",function() {
       if (dragging) {
-        //console.log("mousing "+(d3.event.clientY - lastMouseY));
         updateScrollY(scrollY - (d3.event.clientY - lastMouseY)/rowHeight);
         lastMouseY = d3.event.clientY;
       }
     })
     .on("mouseup",function() {
-      //console.log("mouse up!");
       dragging = false;
     })
     .on("mouseout",function() {
       if (dragging && 
         (d3.event.clientY <= headerHeight + svg[0][0].getBoundingClientRect().top
          || d3.event.clientY >= svg[0][0].getBoundingClientRect().bottom
-         || d3.event.clientX <= svg[0][0].getBoundingClientRect().left
-         || d3.event.clientX >= svg[0][0].getBoundingClientRect().right)) {
-        console.log(d3.event);
+         || d3.event.clientX <= mainChart[0][0].getBoundingClientRect().left
+         || d3.event.clientX >= mainChart[0][0].getBoundingClientRect().right)) {
         //updateScrollY(scrollY + (d3.event.clientY - lastMouseY)/rowHeight);
         dragging = false;
       }
@@ -630,7 +626,6 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
   // update row transforms      
   dataJoin.attr("transform", function(d, i) { return "translate(0," + (rowHeight*d.num) + ")"; })
     .on("mouseover",function(d) { 
-            console.log(document.body.scrollTop);
             d3.select(".tooltip")
               .style("display","block")
               .style("top",((d.num - scrollY)*rowHeight + document.body.scrollTop + headerHeight + svg[0][0].getBoundingClientRect().top - 2)+"px")
@@ -646,9 +641,7 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
           })
           .on("click",function(d) { window.open("https://www.google.com/?gws_rd=ssl#q="+d.values[0].name,"_blank"); } );;
   
-  console.log(dataJoin.select("rect"));
   dataJoin.select("rect").attr("style", function(d) { 
-          console.log(d.overallDecision);
           var text = "";
           if (d.overallDecision == 1) { 
             text = text +  "fill:darkred;stroke:darkred;" 
