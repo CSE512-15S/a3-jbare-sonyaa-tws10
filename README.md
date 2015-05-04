@@ -61,14 +61,15 @@ TODO
   * Additional data (human-readable justice names, Wiki links, appointment by president)
   * Storyboard write-up
   * Justice-centered view
+  * Moving average line coloring
 
 ### Commentary on the development process 
 * **Roughly how much time did you spend developing your application (in man-hour)?** 
  * Tanner: TODO
  * Justin: 15
- * Sonya: 10
+ * Sonya: 10 (+ about 7 hours spent on dataset selection, initial data exploration, additional data acquisition, storyboard and write-up)
 
 * **What aspects took the most time?** 
  * Tanner: TODO
  * Justin: Learning how D3 works. Reading and understanding other peoples' code. 
- * Sonya: D3 fundamentals. Making unorthodox axis tick labels (i.e. if the axis is based on cases, make the ticks display years). Styling (I have almost zero experience with CSS).
+ * Sonya: D3 fundamentals. Making unorthodox axis tick labels (i.e. if the axis is based on cases, make the ticks display years). Making a line colored based on data values. Styling (I have almost zero experience with CSS).
