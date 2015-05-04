@@ -44,6 +44,7 @@ TODO
 ## Explanation of changes between the storyboard and the final implementation
 * Addition of the conservative/liberal overview. By providing a high-level overview, we enable the user to quickly locate interesting patterns and navigate to them using the time brush.
 * Coupling of the two views: the time period shown in the main view is also shown on the overview and on the justice-centered view. This allows the user to explore patterns seen on the justice-centered view in more detail in the main view.
+* We decided not to implement the filter feature due to time constraints.
 * TODO
 
 # The development process
@@ -52,7 +53,10 @@ TODO
 * Tanner
   * TODO
 * Justin
-  * TODO
+  * Scroll brush and axis
+  * Moving average overview for scroll brush background
+  * Row features on the main chart
+  * General formatting and layout of the website
 * Sonya
   * Additional data (human-readable justice names, Wiki links, appointment by president)
   * Storyboard write-up
@@ -61,10 +65,10 @@ TODO
 ### Commentary on the development process 
 * **Roughly how much time did you spend developing your application (in man-hour)?** 
  * Tanner: TODO
- * Justin: TODO
+ * Justin: 15
  * Sonya: 10
 
 * **What aspects took the most time?** 
  * Tanner: TODO
- * Justin: TODO
+ * Justin: Learning how D3 works. Reading and understanding other peoples' code. 
  * Sonya: D3 fundamentals. Making unorthodox axis tick labels (i.e. if the axis is based on cases, make the ticks display years). Styling (I have almost zero experience with CSS).
