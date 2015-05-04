@@ -42,7 +42,7 @@
       }
 
       .x.axis path {
-          /*display: none;*/
+          display: none;
       }
       .line {
           fill: none;
@@ -748,6 +748,26 @@ d3.csv("data/scd_since2000.csv", function(d) {
         return data;
     };
 
+  var computeYearBreaksForJustice = function(justiceId) {
+    var firstCase = firstCases[justiceId];
+    var lastCase = lastCases[justiceId];
+    var breaks = d3.map();
+    var curYear = null;
+    for (i = firstCase; i <= lastCase; i++) {
+      for (var j = 0; j < nestedByCaseId[i].values.length; j++) {
+        var justice = nestedByCaseId[i].values[j].justiceID;
+        if (justice === justiceId) {
+          var year = nestedByCaseId[i].values[j].decisionDate.getFullYear();
+          if (year !== curYear) {
+            breaks.set(i-firstCase, year);
+            curYear = year;
+          }
+        }
+      }
+    }
+    return breaks;
+  };
+
     var showJusticeViewAndControls = function(justiceID) {
         var controlNames = ["Liberal/conservative", "Majority/minority"];
         var values = ["direction", "majority"];
@@ -792,19 +812,33 @@ d3.csv("data/scd_since2000.csv", function(d) {
         var y = d3.scale.linear()
                 .range([height, 0]);
 
-//        var xAxis = d3.svg.axis()
-//                .scale(x)
-//                .orient("bottom")
-//                .ticks(5)
-//                .tickFormat(d3.time.format("%Y"));
-//      var yearBreaks = computeYearBreaks(justiceId);
+
+    var yearBreaksForJustice = computeYearBreaksForJustice(justiceId);
+    var tickNumber = 4;
+    var tickPeriod = Math.round(yearBreaksForJustice.size()/tickNumber);
+    var minDistance = 30; // only take labels that are at least this far apart in number of cases
+
+    var tickYearsForJustice = [];
+    var lastTick = null;
+    var allTicks = yearBreaksForJustice.keys();
+    allTicks.sort(function(a,b) {return d3.ascending(+a,+b);});
+    for (var k = 0; k < allTicks.length; k++) {
+        if (k % tickPeriod == 0) {
+            if (lastTick === null || (allTicks[k]-lastTick) > minDistance) {
+                lastTick = allTicks[k];
+                tickYearsForJustice.push(lastTick)
+            }
+        }
+    }
+//  var tickYearsForJustice = yearBreaksForJustice.keys().filter(function(d,i) {return i % tickPeriod == 0;});
+    // set up and add y axis
       var xAxis = d3.svg.axis()
               .scale(x)
               .orient("bottom")
-//              .tickValues(yearBreaks.keys)
-              .ticks(5)
-              .tickFormat(function(d) { return d + ' (' + runningTotalData[d].date.getFullYear() + ')'; });
-//              .tickFormat(d3.time.format("%Y"));
+              .tickValues(tickYearsForJustice)
+              .tickFormat(function(d) {
+                  return yearBreaksForJustice.get(d);
+              });
 
         var yAxis = d3.svg.axis()
                 .scale(y)
@@ -858,8 +892,8 @@ d3.csv("data/scd_since2000.csv", function(d) {
                 .append("text")
                 .attr("x", width-5)
                 .attr("dy", "1em")
-                .style("text-anchor", "end")
-                .text("Cases (Date)");
+                .style("text-anchor", "end");
+//                .text("Cases (Date)");
 
         svg2.append("g")
                 .attr("class", "y axis")
@@ -931,7 +965,7 @@ d3.csv("data/scd_since2000.csv", function(d) {
         };
 
 //        svg2.selectAll('g.x.axis g text').each(insertLineBreaks);
-        svg2.selectAll('g.x.axis text').each(insertLineBreaks);
+//        svg2.selectAll('g.x.axis text').each(insertLineBreaks);
 
 
       var selection = svg2.append("g")
