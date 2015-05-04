@@ -273,7 +273,7 @@ d3.csv("data/scd_since1957.csv", function(d) {
   console.log(h1Height);
   console.log(d3.select("body"));
   
-  var headerHeight = 150;
+  var headerHeight = 160;
   var rowHeight = 32;
   var boxesInView = Math.max(1,Math.floor((window.innerHeight - bodyMargin - h1Height - headerHeight)/rowHeight)-1); //13;
   var yMax = rowHeight*(numCases-boxesInView);
@@ -290,8 +290,7 @@ d3.csv("data/scd_since1957.csv", function(d) {
 
   var justiceViewWidth = 650;
   var justiceViewHeight = 400;
-  
-  
+    
   var labelAngle = -60;
   
   var startCase = 0;
