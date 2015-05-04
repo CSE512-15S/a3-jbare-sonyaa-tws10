@@ -9,11 +9,11 @@ http://cse512-15s.github.io/a3-jbare-sonyaa-tws10/
 Our app will enable users to study patterns in Supreme Court voting, centered on individual justices.
 
 ### Dataset
-The dataset we're using can be found [here](http://supremecourtdatabase.org/data.php). It contains every vote by a Supreme Court justice in all argued cases from 1946 to 2014. Each vote is classified as conservative or liberal (or unspecifiable). There is also information about the decision on the case (and whether it was conservative or liberal). 
+The dataset we're using can be found [here](http://supremecourtdatabase.org/data.php). It contains every vote by a Supreme Court justice in all argued cases from 1957 to 2014. Each vote is classified as conservative or liberal (or unspecifiable). There is also information about the decision on the case (and whether it was conservative or liberal). 
 
 There is a number of interesting things to explore here: which justices are overall conservative or liberal, which ones vote mainly with majority and which ones stand out with their minority votes, whether there are justices that were conservative at some point but switched to liberal, whether there are periods when the Supreme Court was conservative and periods where it was liberal, whether there are similarities between voting patterns of certain justices. It would be also interesting to explore which cases produced a split vote (i.e. a 5:4 voting pattern) - and there are many more questions one could ask based on this dataset. 
 
-However, how do you visualize it? There are thousands of cases, and for each case there are 9 votes (for each individual judge) and one decision, as well as a direction (conservative/liberal) and a majority parameter associated with each vote. The dataset spans almost 60 years and 36 different judges. Obviously, without interaction it is impossible to visualize. 
+However, how do you visualize it? There are thousands of cases, and for each case there are 9 votes (for each individual judge) and one decision, as well as a direction (conservative/liberal) and a majority parameter associated with each vote. The dataset spans almost 50 years and 36 different judges. Obviously, without interaction it is impossible to visualize. 
 
 ### Techniques
 Here are the main ideas for our visualization:
