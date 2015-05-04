@@ -10,6 +10,7 @@
         -webkit-user-select: none; /* Chrome/Safari */        
         -moz-user-select: none; /* Firefox */  
         -ms-user-select: none;
+        margin: 8;
       }
       .chart div {
         font: 10px sans-serif;
@@ -57,7 +58,7 @@
 
 
       .hoverRect:hover {
-        opacity: 0.2;
+        opacity: 0.5;
       }
 
       .tooltip {
@@ -263,8 +264,18 @@ d3.csv("data/scd_since1957.csv", function(d) {
   }
   
   // set up size variables
+  
+  console.log(window.innerWidth);
+  console.log(window.innerHeight);
+
+  var h1Height = d3.select("h1")[0][0].clientHeight;
+  var bodyMargin = 8; //d3.select("body").style("margin");
+  console.log(h1Height);
+  console.log(d3.select("body"));
+  
+  var headerHeight = 150;
   var rowHeight = 32;
-  var boxesInView = 13;
+  var boxesInView = Math.max(1,Math.floor((window.innerHeight - bodyMargin - h1Height - headerHeight)/rowHeight)-1); //13;
   var yMax = rowHeight*(numCases-boxesInView);
   
   var columnWidth = 45;
@@ -280,7 +291,6 @@ d3.csv("data/scd_since1957.csv", function(d) {
   var justiceViewWidth = 650;
   var justiceViewHeight = 400;
   
-  var headerHeight = 150;
   
   var labelAngle = -60;
   
