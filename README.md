@@ -72,4 +72,4 @@ TODO
 * **What aspects took the most time?** 
  * Tanner: TODO
  * Justin: Learning how D3 works. Reading and understanding other peoples' code. 
- * Sonya: D3 fundamentals. Making unorthodox axis tick labels (i.e. if the axis is based on cases, make the ticks display years). Making a line colored based on data values. Styling (I have almost zero experience with CSS).
+ * Sonya: D3 fundamentals. Making unorthodox axis tick labels (i.e. if the axis is based on cases, make the ticks display years). Making a line colored based on data values (especially if the domain is not symmetric). Styling (I have almost zero experience with CSS).
