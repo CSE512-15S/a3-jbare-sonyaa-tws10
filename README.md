@@ -50,13 +50,13 @@ TODO
 TODO
 ### Breakdown of work split 
 * Tanner
- * Dataset 
- * TODO
+  * TODO
 * Justin
- * TODO
+  * TODO
 * Sonya
- * Storyboard write-up
- * Justice-centered view
+  * Additional data (human-readable justice names, Wiki links, appointment by president)
+  * Storyboard write-up
+  * Justice-centered view
 
 ### Commentary on the development process 
 * **Roughly how much time did you spend developing your application (in man-hour)?** 
