@@ -38,5 +38,20 @@ The main view shows 100 cases. The data shown in the main view can be filtered b
 
 ![](https://github.com/CSE512-15S/a3-jbare-sonyaa-tws10/blob/master/images/storyboard_justice_change.jpg)
 
-### Differences in final implementation
+## Description of the final interactive visualization application
+TODO
+
+## Explanation of changes between the storyboard and the final implementation
 * Addition of the conservative/liberal overview. By providing a high-level overview, we enable the user to quickly locate interesting patterns and navigate to them using the time brush.
+* TODO
+
+# The development process
+TODO
+### Breakdown of work split 
+TODO
+
+### Commentary on the development process 
+* **Roughly how much time did you spend developing your application (in man-hour)?** 
+  * TODO
+* **What aspects took the most time?** 
+  * TODO
