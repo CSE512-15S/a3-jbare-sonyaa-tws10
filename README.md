@@ -57,7 +57,10 @@ Clicking on the name of a justice brings up a graph showing a running total of t
 TODO
 ### Breakdown of work split 
 * Tanner
-  * TODO
+  * Column headers / proper positioning of circles by justice
+  * Scrolling in the grid view
+  * Tooltips
+  * References from grid view to google search by case
 * Justin
   * Scroll brush and axis
   * Moving average overview for scroll brush background
