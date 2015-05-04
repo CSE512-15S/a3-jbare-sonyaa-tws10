@@ -622,18 +622,20 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
   // update row transforms      
   dataJoin.attr("transform", function(d, i) { return "translate(0," + (rowHeight*d.num) + ")"; })
     .on("mouseover",function(d) { 
-            d3.select(".tooltip")
+            var top = ((d.num - scrollY)*rowHeight + document.body.scrollTop + headerHeight + svg[0][0].getBoundingClientRect().top - 2);
+            tooltip = d3.select(".tooltip")
               .style("display","block")
-              .style("top",((d.num - scrollY)*rowHeight + document.body.scrollTop + headerHeight + svg[0][0].getBoundingClientRect().top - 2)+"px")
+              .style("top",top+"px")
               .html("<strong>Case name: </strong>"+d.values[0].name+"<br / ><strong>Decided: </strong>"
                  + dateFormat(d.values[0].decisionDate));
             d3.select(".arrow-left")
               .style("display","block")
                             .style("top",((d.num +0.5 - scrollY)*rowHeight + document.body.scrollTop + headerHeight + svg[0][0].getBoundingClientRect().top - 2)+"px");
-          })
-           .on("mouseout",function(d) {
-            d3.select(".tooltip").style("display","none");
-            d3.select(".arrow-left").style("display","none");
+            console.log(window.innerHeight + " v " + d3.select(".tooltip")[0][0].getBoundingClientRect().bottom);
+            var distFromBottom = window.innerHeight - d3.select(".tooltip")[0][0].getBoundingClientRect().bottom;
+            if (distFromBottom < 10) {
+              tooltip.style("top",(top+distFromBottom-10)+"px");
+            }
           })
           .on("click",function(d) { window.open("https://www.google.com/?gws_rd=ssl#q="+d.values[0].name,"_blank"); } );;
   
@@ -696,14 +698,20 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
           return text;
         })
         .on("mouseover",function(d) { 
-            d3.select(".tooltip")
+            var top = ((d.num - scrollY)*rowHeight + document.body.scrollTop + headerHeight + svg[0][0].getBoundingClientRect().top - 2);
+            tooltip = d3.select(".tooltip")
               .style("display","block")
-              .style("top",((d.num - scrollY)*rowHeight + document.body.scrollTop + headerHeight + svg[0][0].getBoundingClientRect().top - 2)+"px")
+              .style("top",top+"px")
               .html("<strong>Case name: </strong>"+d.values[0].name+"<br / ><strong>Decided: </strong>"
                  + dateFormat(d.values[0].decisionDate));
             d3.select(".arrow-left")
               .style("display","block")
                             .style("top",((d.num +0.5 - scrollY)*rowHeight + document.body.scrollTop + headerHeight + svg[0][0].getBoundingClientRect().top - 2)+"px");
+            console.log(window.innerHeight + " v " + d3.select(".tooltip")[0][0].getBoundingClientRect().bottom);
+            var distFromBottom = window.innerHeight - d3.select(".tooltip")[0][0].getBoundingClientRect().bottom;
+            if (distFromBottom < 10) {
+              tooltip.style("top",(top+distFromBottom-10)+"px");
+            }
           })
           .on("mouseout",function(d) {
             d3.select(".tooltip").style("display","none");
@@ -738,14 +746,12 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
     for (var i=0; i<9; i++) {
         (function( lockedInIndex ) {
           var justiceID = activeJusticesByBreakpoint[breakpoint][lockedInIndex];
-          //console.log("justice " + lockedInIndex + " id: " + justiceID + "("+justiceDataMap[justiceID][0]+")");
           header.select(".label"+lockedInIndex)
             //.attr("class", "clickable")
             .style("opacity","1")
             .attr("transform","translate("+(columnWidth*(lockedInIndex+0.5))+","+(headerHeight-5)+")rotate("+labelAngle+")")
             .text(justiceDataMap[justiceID][0])
                   .on("mouseover",function() {
-                    //console.log(justiceID + " mouseover");
                     d3.select(this).attr("style","font-weight: bold; cursor: pointer; ");
                   })
                   .on("mouseout",function() {
@@ -755,12 +761,11 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
                   .on("click", function () {
                       showJusticeViewAndControls(justiceID);
                   });
-          //console.log(header.select(".label"+lockedInIndex).text());
         }(i));
     }
     
     if (breakpoints[breakpoint] <= yScale.domain()[1]) {
-      console.log(scrollY + "," + breakpoints[breakpoint] + "," + yScale.domain()[1]);
+      //console.log(scrollY + "," + breakpoints[breakpoint] + "," + yScale.domain()[1]);
       var addedJustice = justiceAdditionsByBreakpoint[breakpoint];
       sideLabel.text(justiceDataMap[addedJustice][0])
         .attr("transform","translate("+(gridWidth+10)+","+((breakpoints[breakpoint]+0.5)*rowHeight+5)+")")
