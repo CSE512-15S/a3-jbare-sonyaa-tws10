@@ -189,7 +189,6 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
     }
 
     nestedByCaseId[i].movingAverage = movingAverage;
-    //console.log(movingAverage);
 
     libTotal = 0;
     consTotal = 0;
@@ -198,9 +197,9 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
   //console.log(firstCases);
   //console.log(lastCases);
 
-  for (i in firstCases) {
-    console.log(i + ": " + firstCases[i] + " -> " + lastCases[i]);
-  }
+  //for (i in firstCases) {
+  //  console.log(i + ": " + firstCases[i] + " -> " + lastCases[i]);
+  //}
 
   // compute the break-points, i.e. when the set of active justices change
   var activeJustices = d3.set();
@@ -209,7 +208,6 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
   for (var j = 0; j < nestedByCaseId[0].values.length; j++) {
 	  activeJustices.add(nestedByCaseId[0].values[j].justiceID);
   }
-  console.log(activeJustices.size());
  
   var breakpoints = [];
   var activeJusticesByBreakpoint = [activeJustices.values()];
@@ -224,7 +222,6 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
       }
     }
         
-    console.log("next to leave: " + nextToLeave);
     if (lastCases[nextToLeave] == (numCases - 1)) { break; }
     //console.log("next to leave: " + nextToLeave);
     activeJustices.remove(nextToLeave);
@@ -234,13 +231,12 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
         nextToArrive = j;
       }
     }
-    console.log("next to arrive: " + nextToArrive);
+    //console.log("next to arrive: " + nextToArrive);
     activeJustices.add(nextToArrive);
     breakpoints.push(lastCases[nextToLeave]+1);
     activeJusticesByBreakpoint.push(activeJustices.values());
     justiceAdditionsByBreakpoint.push(nextToArrive);
     justiceRemovalsByBreakpoint.push(nextToLeave);
-    //console.log("next to arrive: " + nextToArrive);
   }
   breakpoints.push(numCases);
     
@@ -254,9 +250,9 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
     justiceColumnsByBreakpoint.push(justiceColumns);
   }
   
-  console.log(breakpoints);
-  console.log(activeJusticesByBreakpoint);
-  console.log(justiceColumnsByBreakpoint);
+  //console.log(breakpoints);
+  //console.log(activeJusticesByBreakpoint);
+  //console.log(justiceColumnsByBreakpoint);
   
   // add breakpoints to data
   for (i in nestedByCaseId) {
@@ -269,13 +265,11 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
   
   // set up size variables
   
-  console.log(window.innerWidth);
-  console.log(window.innerHeight);
+  //console.log(window.innerWidth);
+  //console.log(window.innerHeight);
 
   var h1Height = d3.select("h1")[0][0].clientHeight;
   var bodyMargin = 8; //d3.select("body").style("margin");
-  console.log(h1Height);
-  console.log(d3.select("body"));
 
   var headerHeight = 160;
   var rowHeight = 32;
@@ -862,7 +856,8 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
             curValue = d3.select('input[name="justiceViewType"]:checked').node().value;
         }
         d3.select("form.justiceViewType").remove();
-        var form = d3.select("body").append("form").attr("class", "justiceViewType");
+        var form = d3.select("body").append("form").attr("class", "justiceViewType")
+           .style("top",(svg[0][0].getBoundingClientRect().top+50+document.body.scrollTop) + "px");
         var labelEnter = form.selectAll("span")
                 .data(controlNames)
                 .enter().append("div");
@@ -877,6 +872,11 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
         labelEnter.append("label").text(function(d) {return d;});
         showJusticeView(+justiceID);
     };
+    
+    window.onresize = function() {
+      var form = d3.select("form.justiceViewType");
+      form.style("top",(svg[0][0].getBoundingClientRect().top+50+document.body.scrollTop) + "px");
+    }
 
     var showJusticeView = function(justiceId) {
         var controlValue = d3.select('input[name="justiceViewType"]:checked').node().value;
@@ -1027,7 +1027,6 @@ d3.csv("data/SCDB_2014_01_justiceCentered_Citation.csv", function(d) {
                 .style("font-size", "16px")
                 .text(justiceDataMap[justiceId][0])
                 .on("mouseover",function() {
-                  //console.log(justiceID + " mouseover");
                   d3.select(this).attr("style","font-weight: bold; cursor: pointer; ");
                 })
                 .on("mouseout",function() {
