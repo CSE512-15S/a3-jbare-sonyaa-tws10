@@ -9,7 +9,7 @@ http://cse512-15s.github.io/a3-jbare-sonyaa-tws10/
 Our app will enable users to study patterns in Supreme Court voting, centered on individual justices.
 
 ### Dataset
-The dataset we're using can be found [here](http://supremecourtdatabase.org/data.php). It contains every vote by a Supreme Court justice in all argued cases from 1957 to 2014. Each vote is classified as conservative or liberal (or unspecifiable). There is also information about the decision on the case (and whether it was conservative or liberal). 
+The dataset we're using can be found [here](http://supremecourtdatabase.org/data.php). It contains every vote by a Supreme Court justice in all argued cases from 1946 to 2014. Each vote is classified as conservative or liberal (or unspecifiable). There is also information about the decision on the case (and whether it was conservative or liberal). 
 
 There is a number of interesting things to explore here: which justices are overall conservative or liberal, which ones vote mainly with majority and which ones stand out with their minority votes, whether there are justices that were conservative at some point but switched to liberal, whether there are periods when the Supreme Court was conservative and periods where it was liberal, whether there are similarities between voting patterns of certain justices. It would be also interesting to explore which cases produced a split vote (i.e. a 5:4 voting pattern) - and there are many more questions one could ask based on this dataset. 
 
@@ -39,7 +39,7 @@ The main view shows 100 cases. The data shown in the main view can be filtered b
 ![](https://github.com/CSE512-15S/a3-jbare-sonyaa-tws10/blob/master/images/storyboard_justice_change.jpg)
 
 ## Description of the final interactive visualization application
-TODO
+This visualization shows ideological data about Supreme Court votes by justices between 1946 and 2014. "Liberal" decisions are shown as blue circles in the main chart, "conservative" decisions are shown as red circles, and abstentions or other non-decisions are shown as gray circles. The background of each row shows the majority ideological direction, which corresponds to the final decision on each case. Clicking the row opens up Google search results for that case in a new browser tab. The summary time series in the scroll brush area shows overall ideological trends by computing a moving average of the ideological direction of the majority rulings in each case, with liberal coded as +1 and conservative coded as -1. Clicking on the name of a justice brings up a graph showing a running total of their decisions. If the "Liberal/conservative" radio button is selected, this running total is again computed with the +/-1 encoding for liberal/conservative, whereas selecting "Majority/minority" uses the +/-1 enconding for voting with the majority or with the minority. The gray reference line in these graphs shows the running total with the same encodings for the final decisions of the full court on each case. Clicking the name of the justice in the title of these graphs opens up a Wikipedia page for that justice. 
 
 ## Explanation of changes between the storyboard and the final implementation
 * Addition of the conservative/liberal overview. By providing a high-level overview, we enable the user to quickly locate interesting patterns and navigate to them using the time brush.
