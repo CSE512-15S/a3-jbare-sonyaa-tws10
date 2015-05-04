@@ -61,9 +61,9 @@ TODO
 * **Roughly how much time did you spend developing your application (in man-hour)?** 
  * Tanner: TODO
  * Justin: TODO
- * Sonya: TODO
+ * Sonya: 10
 
 * **What aspects took the most time?** 
  * Tanner: TODO
  * Justin: TODO
- * Sonya: TODO
+ * Sonya: D3 fundamentals. Making unorthodox axis tick labels (i.e. if the axis is based on cases, make the ticks display years). Styling (I have almost zero experience with CSS).
