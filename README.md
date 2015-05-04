@@ -48,10 +48,22 @@ TODO
 # The development process
 TODO
 ### Breakdown of work split 
-TODO
+* Tanner
+ * Dataset 
+ * TODO
+* Justin
+ * TODO
+* Sonya
+ * Storyboard write-up
+ * Justice-centered view
 
 ### Commentary on the development process 
 * **Roughly how much time did you spend developing your application (in man-hour)?** 
-  * TODO
+ * Tanner: TODO
+ * Justin: TODO
+ * Sonya: TODO
+
 * **What aspects took the most time?** 
-  * TODO
+ * Tanner: TODO
+ * Justin: TODO
+ * Sonya: TODO
